@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:iconsax/iconsax.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../shared/widgets/empty_state.dart';
 import '../../../cart/presentation/providers/cart_provider.dart';
 import '../../../cart/presentation/screens/cart_screen.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
@@ -179,6 +178,16 @@ class _ShopTab extends ConsumerWidget {
 
         final selectedId = ref.watch(selectedProductIdProvider);
 
+        // Full-width grid until a product is selected, then master-detail
+        if (selectedId == null) {
+          return ProductListScreen(
+            isTabletLeftPane: true,
+            onProductSelected: (id) {
+              ref.read(selectedProductIdProvider.notifier).state = id;
+            },
+          );
+        }
+
         return Row(
           children: [
             SizedBox(
@@ -192,16 +201,10 @@ class _ShopTab extends ConsumerWidget {
             ),
             const VerticalDivider(width: 1),
             Expanded(
-              child: selectedId != null
-                  ? ProductDetailScreen(
-                      key: ValueKey(selectedId),
-                      productId: selectedId,
-                    )
-                  : const EmptyState(
-                      title: 'Select a product',
-                      subtitle: 'Choose a product from the list to view its details.',
-                      icon: Iconsax.finger_scan,
-                    ),
+              child: ProductDetailScreen(
+                key: ValueKey(selectedId),
+                productId: selectedId,
+              ),
             ),
           ],
         );
