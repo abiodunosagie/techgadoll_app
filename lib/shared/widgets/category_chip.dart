@@ -17,7 +17,10 @@ class CategoryChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return GestureDetector(
+    return Semantics(
+      label: isSelected ? '$label category, selected' : '$label category',
+      button: true,
+      child: GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
@@ -48,6 +51,7 @@ class CategoryChip extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
   }
 }

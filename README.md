@@ -107,11 +107,7 @@ Both light and dark themes are built from `ColorScheme.fromSeed(seedColor: prima
 With more time, I would improve:
 
 - **Integration tests.** Add end-to-end tests with `integration_test` package covering the full user flow (search, filter, navigate to detail, responsive layout).
-- **Cache invalidation UI.** Add a pull-to-refresh gesture that forces a fresh API call and clears stale cache.
-- **Hero animations (Enhancement C).** Add shared element transitions between the product thumbnail in the list and the detail image gallery.
-- **Staggered animations.** Add staggered fade-in animations for grid items on first load.
-- **Accessibility.** Add semantic labels to all interactive elements and test with screen readers.
-- **Error recovery on pagination.** Currently, if a "load more" request fails, the error is silently swallowed. A snackbar notification would improve UX.
+- **Screen reader testing.** Semantic labels are in place on all interactive elements. Full VoiceOver/TalkBack testing across devices would validate the experience.
 
 ## AI Tools Usage
 

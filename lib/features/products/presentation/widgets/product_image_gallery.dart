@@ -4,8 +4,9 @@ import '../../../../core/theme/app_colors.dart';
 
 class ProductImageGallery extends StatefulWidget {
   final List<String> images;
+  final int? productId;
 
-  const ProductImageGallery({super.key, required this.images});
+  const ProductImageGallery({super.key, required this.images, this.productId});
 
   @override
   State<ProductImageGallery> createState() => _ProductImageGalleryState();
@@ -48,7 +49,7 @@ class _ProductImageGalleryState extends State<ProductImageGallery> {
             onPageChanged: (index) => setState(() => _currentPage = index),
             itemCount: widget.images.length,
             itemBuilder: (context, index) {
-              return CachedNetworkImage(
+              final image = CachedNetworkImage(
                 imageUrl: widget.images[index],
                 fit: BoxFit.cover,
                 placeholder: (context, url) => const Center(
@@ -65,6 +66,14 @@ class _ProductImageGalleryState extends State<ProductImageGallery> {
                   ),
                 ),
               );
+
+              if (index == 0 && widget.productId != null) {
+                return Hero(
+                  tag: 'product-image-${widget.productId}',
+                  child: image,
+                );
+              }
+              return image;
             },
           ),
         ),

@@ -15,7 +15,13 @@ class RatingBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    final semanticLabel = reviewCount != null
+        ? 'Rated ${rating.toStringAsFixed(1)} out of 5 stars, $reviewCount reviews'
+        : 'Rated ${rating.toStringAsFixed(1)} out of 5 stars';
+
+    return Semantics(
+      label: semanticLabel,
+      child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         ...List.generate(5, (index) {
@@ -48,6 +54,7 @@ class RatingBar extends StatelessWidget {
           ),
         ],
       ],
+    ),
     );
   }
 }

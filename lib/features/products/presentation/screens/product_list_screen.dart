@@ -63,6 +63,26 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
     final selectedCategory = ref.watch(selectedCategoryProvider);
     final selectedProductId = ref.watch(selectedProductIdProvider);
 
+    // Listen for pagination errors and show snackbar
+    ref.listen<ProductListState>(productListProvider, (prev, next) {
+      if (next.paginationError != null && prev?.paginationError == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.paginationError!),
+            behavior: SnackBarBehavior.floating,
+            action: SnackBarAction(
+              label: 'Retry',
+              onPressed: () {
+                ref.read(productListProvider.notifier).clearPaginationError();
+                ref.read(productListProvider.notifier).loadMore();
+              },
+            ),
+          ),
+        );
+        ref.read(productListProvider.notifier).clearPaginationError();
+      }
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Product Catalog'),
@@ -79,11 +99,15 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
           // Search bar
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-            child: AppSearchBar(
-              initialValue: searchQuery,
-              onChanged: (query) {
-                ref.read(searchQueryProvider.notifier).state = query;
-              },
+            child: Semantics(
+              label: 'Search products',
+              textField: true,
+              child: AppSearchBar(
+                initialValue: searchQuery,
+                onChanged: (query) {
+                  ref.read(searchQueryProvider.notifier).state = query;
+                },
+              ),
             ),
           ),
 
@@ -184,34 +208,95 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
           );
         }
 
-        return GridView.builder(
-          controller: _scrollController,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: widget.isTabletLeftPane ? 1 : 2,
-            childAspectRatio: widget.isTabletLeftPane ? 2.5 : 0.62,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-          ),
-          itemCount: listState.products.length + (listState.isLoadingMore ? 1 : 0),
-          itemBuilder: (context, index) {
-            if (index == listState.products.length) {
-              return const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(16),
-                  child: CircularProgressIndicator(strokeWidth: 2),
+        return RefreshIndicator(
+          onRefresh: () => ref.read(productListProvider.notifier).refresh(),
+          child: GridView.builder(
+            controller: _scrollController,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: widget.isTabletLeftPane ? 1 : 2,
+              childAspectRatio: widget.isTabletLeftPane ? 2.5 : 0.62,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+            ),
+            itemCount: listState.products.length + (listState.isLoadingMore ? 1 : 0),
+            itemBuilder: (context, index) {
+              if (index == listState.products.length) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                );
+              }
+
+              final product = listState.products[index];
+              return _StaggeredFadeIn(
+                index: index,
+                child: ProductCard(
+                  product: product,
+                  isSelected: product.id == selectedProductId,
+                  onTap: () => _onProductTap(product.id),
                 ),
               );
-            }
-
-            final product = listState.products[index];
-            return ProductCard(
-              product: product,
-              isSelected: product.id == selectedProductId,
-              onTap: () => _onProductTap(product.id),
-            );
-          },
+            },
+          ),
         );
     }
+  }
+}
+
+class _StaggeredFadeIn extends StatefulWidget {
+  final int index;
+  final Widget child;
+
+  const _StaggeredFadeIn({required this.index, required this.child});
+
+  @override
+  State<_StaggeredFadeIn> createState() => _StaggeredFadeInState();
+}
+
+class _StaggeredFadeInState extends State<_StaggeredFadeIn>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _opacity;
+  late final Animation<Offset> _slide;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 400),
+      vsync: this,
+    );
+
+    _opacity = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
+    _slide = Tween<Offset>(
+      begin: const Offset(0, 0.1),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+
+    // Stagger the animation based on index, capped to avoid long waits
+    final delay = Duration(milliseconds: (widget.index % 6) * 60);
+    Future.delayed(delay, () {
+      if (mounted) _controller.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _opacity,
+      child: SlideTransition(
+        position: _slide,
+        child: widget.child,
+      ),
+    );
   }
 }

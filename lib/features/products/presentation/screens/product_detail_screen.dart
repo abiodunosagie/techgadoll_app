@@ -32,7 +32,7 @@ class ProductDetailScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ProductImageGallery(images: product.images),
+              ProductImageGallery(images: product.images, productId: productId),
               ProductInfoSection(product: product),
             ],
           ),

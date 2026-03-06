@@ -16,20 +16,28 @@ class PriceTag extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (price == null) {
-      return Text(
+      return Semantics(
+        label: 'Price unavailable',
+        child: Text(
         'Price unavailable',
         style: TextStyle(
           fontSize: fontSize,
           color: AppColors.textSecondary,
           fontStyle: FontStyle.italic,
         ),
+      ),
       );
     }
 
     final hasDiscount = discountPercentage > 0;
     final discountedPrice = hasDiscount ? price! * (1 - discountPercentage / 100) : price!;
+    final semanticLabel = hasDiscount
+        ? '\$${discountedPrice.toStringAsFixed(2)}, was \$${price!.toStringAsFixed(2)}, ${discountPercentage.toStringAsFixed(0)} percent off'
+        : '\$${price!.toStringAsFixed(2)}';
 
-    return Row(
+    return Semantics(
+      label: semanticLabel,
+      child: Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -70,6 +78,7 @@ class PriceTag extends StatelessWidget {
           ),
         ],
       ],
+    ),
     );
   }
 }

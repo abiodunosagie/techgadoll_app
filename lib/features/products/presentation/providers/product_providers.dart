@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/cache/product_cache.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/network/api_client.dart';
 import '../../data/models/category_model.dart';
@@ -57,6 +58,7 @@ class ProductListState {
   final bool isLoadingMore;
   final bool isFromCache;
   final String errorMessage;
+  final String? paginationError;
 
   const ProductListState({
     this.products = const [],
@@ -65,6 +67,7 @@ class ProductListState {
     this.isLoadingMore = false,
     this.isFromCache = false,
     this.errorMessage = '',
+    this.paginationError,
   });
 
   ProductListState copyWith({
@@ -74,6 +77,7 @@ class ProductListState {
     bool? isLoadingMore,
     bool? isFromCache,
     String? errorMessage,
+    String? paginationError,
   }) {
     return ProductListState(
       products: products ?? this.products,
@@ -82,6 +86,7 @@ class ProductListState {
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       isFromCache: isFromCache ?? this.isFromCache,
       errorMessage: errorMessage ?? this.errorMessage,
+      paginationError: paginationError,
     );
   }
 
@@ -156,8 +161,20 @@ class ProductListNotifier extends StateNotifier<ProductListState> {
         isLoadingMore: false,
       );
     } catch (e) {
-      state = state.copyWith(isLoadingMore: false);
+      state = state.copyWith(
+        isLoadingMore: false,
+        paginationError: 'Failed to load more products. Please try again.',
+      );
     }
+  }
+
+  void clearPaginationError() {
+    state = state.copyWith(paginationError: null);
+  }
+
+  Future<void> refresh() async {
+    await ProductCache.clear();
+    await fetchProducts();
   }
 
   Future<_FetchResult> _fetchPage(int skip) async {

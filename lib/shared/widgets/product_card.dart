@@ -21,7 +21,14 @@ class ProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return GestureDetector(
+    final priceLabel = product.price != null
+        ? '\$${product.price!.toStringAsFixed(2)}'
+        : 'Price unavailable';
+
+    return Semantics(
+      label: '${product.title}, ${product.brand ?? ''}, rated ${product.rating.toStringAsFixed(1)} out of 5, $priceLabel',
+      button: true,
+      child: GestureDetector(
       onTap: onTap,
       child: Card(
         clipBehavior: Clip.antiAlias,
@@ -41,7 +48,10 @@ class ProductCard extends StatelessWidget {
           children: [
             AspectRatio(
               aspectRatio: 1.2,
-              child: _buildImage(),
+              child: Hero(
+                tag: 'product-image-${product.id}',
+                child: _buildImage(),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(10),
@@ -83,6 +93,7 @@ class ProductCard extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 
