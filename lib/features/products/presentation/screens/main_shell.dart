@@ -204,6 +204,9 @@ class _ShopTab extends ConsumerWidget {
               child: ProductDetailScreen(
                 key: ValueKey(selectedId),
                 productId: selectedId,
+                onClose: () {
+                  ref.read(selectedProductIdProvider.notifier).state = null;
+                },
               ),
             ),
           ],

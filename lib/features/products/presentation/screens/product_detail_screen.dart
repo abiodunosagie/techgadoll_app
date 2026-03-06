@@ -10,8 +10,9 @@ import '../widgets/product_info_section.dart';
 
 class ProductDetailScreen extends ConsumerWidget {
   final int productId;
+  final VoidCallback? onClose;
 
-  const ProductDetailScreen({super.key, required this.productId});
+  const ProductDetailScreen({super.key, required this.productId, this.onClose});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -22,9 +23,18 @@ class ProductDetailScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: onClose == null,
         title: productAsync.whenOrNull(
           data: (product) => Text(product.title),
         ),
+        actions: [
+          if (onClose != null)
+            IconButton(
+              onPressed: onClose,
+              icon: const Icon(Iconsax.close_circle, size: 22),
+              tooltip: 'Close detail',
+            ),
+        ],
       ),
       body: productAsync.when(
         loading: () => const _DetailShimmer(),
