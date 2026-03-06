@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/app_colors.dart';
+import 'package:lottie/lottie.dart';
 
 class EmptyState extends StatelessWidget {
   final String title;
@@ -17,16 +17,26 @@ class EmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 64,
-              color: AppColors.textTertiary,
+            SizedBox(
+              height: 120,
+              width: 120,
+              child: Lottie.asset(
+                'assets/animations/empty_ghost.json',
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) {
+                  return Icon(
+                    icon,
+                    size: 56,
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+                  );
+                },
+              ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             Text(
               title,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -35,13 +45,13 @@ class EmptyState extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             if (subtitle.isNotEmpty) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               Text(
                 subtitle,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
-                  color: AppColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ),
             ],

@@ -19,7 +19,7 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
 
     final priceLabel = product.price != null
         ? '\$${product.price!.toStringAsFixed(2)}'
@@ -32,17 +32,32 @@ class ProductCard extends StatelessWidget {
         onTap: onTap,
         child: Card(
           clipBehavior: Clip.antiAlias,
+          elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
-            side: BorderSide(
-              color: isSelected
-                  ? AppColors.primary
-                  : isDark
-                      ? AppColors.darkBorder
-                      : AppColors.border,
-              width: isSelected ? 2 : 1,
-            ),
+            side: isSelected
+                ? const BorderSide(color: AppColors.primary, width: 2)
+                : BorderSide.none,
           ),
+          shadowColor: Colors.transparent,
+          surfaceTintColor: Colors.transparent,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: colorScheme.surface,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.06),
+                  blurRadius: 12,
+                  offset: const Offset(0, 2),
+                ),
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.03),
+                  blurRadius: 4,
+                  offset: const Offset(0, 1),
+                ),
+              ],
+            ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -50,63 +65,63 @@ class ProductCard extends StatelessWidget {
                 aspectRatio: 1.3,
                 child: Hero(
                   tag: 'product-image-${product.id}',
-                  child: _buildImage(),
+                  child: _buildImage(colorScheme),
                 ),
               ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (product.brand != null)
-                        Text(
-                          product.brand!,
-                          style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.primary,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (product.brand != null)
+                      Text(
+                        product.brand!,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.primary,
                         ),
-                      const SizedBox(height: 2),
-                      Flexible(
-                        child: Text(
-                          product.title,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 4),
-                      RatingBar(rating: product.rating, size: 12),
-                      const SizedBox(height: 4),
-                      PriceTag(
-                        price: product.price,
-                        discountPercentage: product.discountPercentage,
+                    const SizedBox(height: 2),
+                    Text(
+                      product.title,
+                      style: const TextStyle(
                         fontSize: 13,
+                        fontWeight: FontWeight.w600,
                       ),
-                    ],
-                  ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    RatingBar(rating: product.rating, size: 12),
+                    const SizedBox(height: 4),
+                    PriceTag(
+                      price: product.price,
+                      discountPercentage: product.discountPercentage,
+                      fontSize: 13,
+                    ),
+                  ],
                 ),
               ),
             ],
+          ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildImage() {
+  Widget _buildImage(ColorScheme colorScheme) {
+    final placeholderColor = colorScheme.surfaceContainerHighest;
+    final iconColor = colorScheme.onSurfaceVariant;
+
     if (product.thumbnail == null) {
       return Container(
-        color: AppColors.divider,
-        child: const Center(
-          child: Icon(Icons.image_not_supported_outlined, size: 40, color: AppColors.textTertiary),
+        color: placeholderColor,
+        child: Center(
+          child: Icon(Icons.image_not_supported_outlined, size: 40, color: iconColor),
         ),
       );
     }
@@ -115,13 +130,13 @@ class ProductCard extends StatelessWidget {
       imageUrl: product.thumbnail!,
       fit: BoxFit.cover,
       placeholder: (context, url) => Container(
-        color: AppColors.divider,
+        color: placeholderColor,
         child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
       ),
       errorWidget: (context, url, error) => Container(
-        color: AppColors.divider,
-        child: const Center(
-          child: Icon(Icons.broken_image_outlined, size: 40, color: AppColors.textTertiary),
+        color: placeholderColor,
+        child: Center(
+          child: Icon(Icons.broken_image_outlined, size: 40, color: iconColor),
         ),
       ),
     );

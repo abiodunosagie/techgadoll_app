@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../providers/auth_provider.dart';
 
@@ -57,14 +58,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final isSmallScreen = screenHeight < 700;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final mediaQuery = MediaQuery.of(context);
+    final isSmallScreen = mediaQuery.size.height < AppConstants.smallHeightBreakpoint;
+    final colorScheme = Theme.of(context).colorScheme;
+    final horizontalPadding = mediaQuery.size.width > AppConstants.compactWidthBreakpoint ? 80.0 : 24.0;
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        backgroundColor: isDark ? AppColors.darkBackground : AppColors.surface,
         body: SafeArea(
           child: CustomScrollView(
             physics: const ClampingScrollPhysics(),
@@ -72,20 +73,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               SliverFillRemaining(
                 hasScrollBody: false,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(height: isSmallScreen ? 32 : 56),
-                      _buildWelcome(isSmallScreen, isDark),
+                      _buildWelcome(isSmallScreen, colorScheme),
                       SizedBox(height: isSmallScreen ? 24 : 40),
-                      _buildForm(isDark),
+                      _buildForm(colorScheme),
                       SizedBox(height: isSmallScreen ? 20 : 32),
-                      _buildLoginButton(),
+                      _buildLoginButton(colorScheme),
                       const SizedBox(height: 16),
-                      _buildDemoHint(isDark),
+                      _buildDemoHint(colorScheme),
                       const Spacer(),
-                      _buildSignUpLink(isDark),
+                      _buildSignUpLink(colorScheme),
                       SizedBox(height: isSmallScreen ? 16 : 24),
                     ],
                   ),
@@ -98,7 +99,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 
-  Widget _buildWelcome(bool isSmallScreen, bool isDark) {
+  Widget _buildWelcome(bool isSmallScreen, ColorScheme colorScheme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -107,7 +108,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           style: TextStyle(
             fontSize: isSmallScreen ? 26 : 30,
             fontWeight: FontWeight.w700,
-            color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+            color: colorScheme.onSurface,
             height: 1.2,
             letterSpacing: -0.5,
           ),
@@ -118,7 +119,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           style: TextStyle(
             fontSize: isSmallScreen ? 14 : 16,
             fontWeight: FontWeight.w400,
-            color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+            color: colorScheme.onSurfaceVariant,
             height: 1.5,
           ),
         ),
@@ -126,7 +127,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 
-  Widget _buildForm(bool isDark) {
+  Widget _buildForm(ColorScheme colorScheme) {
     return Form(
       key: _formKey,
       child: Column(
@@ -137,7 +138,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 8),
@@ -146,20 +147,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             focusNode: _emailFocus,
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
-            ),
             decoration: _inputDecoration(
               hint: 'Enter your email',
               prefixIcon: Icons.mail_outline_rounded,
-              isDark: isDark,
+              colorScheme: colorScheme,
             ),
             validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter your email';
-              }
+              if (value == null || value.isEmpty) return 'Please enter your email';
               if (!RegExp(r'^[\w\-\.]+@([\w\-]+\.)+[\w\-]{2,4}$').hasMatch(value)) {
                 return 'Please enter a valid email';
               }
@@ -173,7 +167,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 8),
@@ -182,31 +176,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             focusNode: _passwordFocus,
             obscureText: _obscurePassword,
             textInputAction: TextInputAction.done,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
-            ),
             decoration: _inputDecoration(
               hint: 'Enter your password',
               prefixIcon: Icons.lock_outline_rounded,
-              isDark: isDark,
+              colorScheme: colorScheme,
               suffixIcon: IconButton(
                 onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                 icon: Icon(
                   _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                  color: isDark ? AppColors.darkTextSecondary : AppColors.textTertiary,
+                  color: colorScheme.onSurfaceVariant,
                   size: 22,
                 ),
               ),
             ),
             validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter your password';
-              }
-              if (value.length < 6) {
-                return 'Password must be at least 6 characters';
-              }
+              if (value == null || value.isEmpty) return 'Please enter your password';
+              if (value.length < 6) return 'Password must be at least 6 characters';
               return null;
             },
             onFieldSubmitted: (_) => _handleLogin(),
@@ -219,7 +204,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   InputDecoration _inputDecoration({
     required String hint,
     required IconData prefixIcon,
-    required bool isDark,
+    required ColorScheme colorScheme,
     Widget? suffixIcon,
   }) {
     return InputDecoration(
@@ -227,20 +212,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       hintStyle: TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.w400,
-        color: isDark ? AppColors.darkTextSecondary : AppColors.textTertiary,
+        color: colorScheme.onSurfaceVariant,
       ),
       prefixIcon: Padding(
         padding: const EdgeInsets.only(left: 16, right: 12),
-        child: Icon(
-          prefixIcon,
-          size: 22,
-          color: isDark ? AppColors.darkTextSecondary : AppColors.textTertiary,
-        ),
+        child: Icon(prefixIcon, size: 22, color: colorScheme.onSurfaceVariant),
       ),
       prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
       suffixIcon: suffixIcon,
       filled: true,
-      fillColor: isDark ? AppColors.darkCard : AppColors.surface,
+      fillColor: colorScheme.surfaceContainerHigh,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
@@ -248,10 +229,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(
-          color: isDark ? AppColors.darkBorder : AppColors.border,
-          width: 1,
-        ),
+        borderSide: BorderSide.none,
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
@@ -268,7 +246,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 
-  Widget _buildLoginButton() {
+  Widget _buildLoginButton(ColorScheme colorScheme) {
     final isLoading = ref.watch(authProvider).isLoading;
 
     return SizedBox(
@@ -278,20 +256,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         onPressed: isLoading ? null : _handleLogin,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
+          foregroundColor: colorScheme.onPrimary,
           disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.6),
           elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
         child: isLoading
-            ? const SizedBox(
+            ? SizedBox(
                 width: 22,
                 height: 22,
                 child: CircularProgressIndicator(
                   strokeWidth: 2.5,
-                  color: Colors.white,
+                  color: colorScheme.onPrimary,
                 ),
               )
             : const Text(
@@ -302,21 +278,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 
-  Widget _buildDemoHint(bool isDark) {
+  Widget _buildDemoHint(ColorScheme colorScheme) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.primarySurface.withValues(alpha: isDark ? 0.15 : 1.0),
+        color: AppColors.primarySurface.withValues(alpha: colorScheme.brightness == Brightness.dark ? 0.15 : 1.0),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: AppColors.primary.withValues(alpha: 0.3),
-        ),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             'Demo Credentials',
             style: TextStyle(
               fontSize: 12,
@@ -330,7 +304,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w400,
-              color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+              color: colorScheme.onSurfaceVariant,
               height: 1.5,
             ),
           ),
@@ -339,7 +313,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 
-  Widget _buildSignUpLink(bool isDark) {
+  Widget _buildSignUpLink(ColorScheme colorScheme) {
     return Center(
       child: GestureDetector(
         onTap: () => context.push('/signup'),
@@ -352,7 +326,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w400,
-                color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                color: colorScheme.onSurfaceVariant,
               ),
               children: const [
                 TextSpan(

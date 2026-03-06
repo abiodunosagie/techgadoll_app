@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/app_search_bar.dart';
 import '../../../../shared/widgets/category_chip.dart';
@@ -63,7 +64,6 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
     final selectedCategory = ref.watch(selectedCategoryProvider);
     final selectedProductId = ref.watch(selectedProductIdProvider);
 
-    // Listen for pagination errors and show snackbar
     ref.listen<ProductListState>(productListProvider, (prev, next) {
       if (next.paginationError != null && prev?.paginationError == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -89,7 +89,6 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
       ),
       body: Column(
         children: [
-          // Search bar
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
             child: Semantics(
@@ -104,9 +103,8 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
             ),
           ),
 
-          // Category chips
           SizedBox(
-            height: 48,
+            height: 36,
             child: categoriesAsync.when(
               data: (categories) => ListView.builder(
                 scrollDirection: Axis.horizontal,
@@ -120,8 +118,7 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
                         label: 'All',
                         isSelected: selectedCategory == null,
                         onTap: () {
-                          ref.read(selectedCategoryProvider.notifier).state =
-                              null;
+                          ref.read(selectedCategoryProvider.notifier).state = null;
                         },
                       ),
                     );
@@ -133,8 +130,7 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
                       label: cat.name,
                       isSelected: selectedCategory == cat.slug,
                       onTap: () {
-                        ref.read(selectedCategoryProvider.notifier).state =
-                            cat.slug;
+                        ref.read(selectedCategoryProvider.notifier).state = cat.slug;
                       },
                     ),
                   );
@@ -145,7 +141,6 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
             ),
           ),
 
-          // Cache indicator
           if (productListState.isFromCache)
             Container(
               width: double.infinity,
@@ -166,12 +161,8 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
 
           const SizedBox(height: 8),
 
-          // Product grid
           Expanded(
-            child: _buildProductContent(
-              productListState,
-              selectedProductId,
-            ),
+            child: _buildProductContent(productListState, selectedProductId),
           ),
         ],
       ),
@@ -203,34 +194,47 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
 
         return RefreshIndicator(
           onRefresh: () => ref.read(productListProvider.notifier).refresh(),
-          child: GridView.builder(
-            controller: _scrollController,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: widget.isTabletLeftPane ? 1 : 2,
-              childAspectRatio: widget.isTabletLeftPane ? 2.5 : 0.58,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-            ),
-            itemCount: listState.products.length + (listState.isLoadingMore ? 1 : 0),
-            itemBuilder: (context, index) {
-              if (index == listState.products.length) {
-                return const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(16),
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                );
-              }
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final crossAxisCount = widget.isTabletLeftPane
+                  ? 1
+                  : constraints.maxWidth > AppConstants.largeTabletBreakpoint
+                      ? 4
+                      : constraints.maxWidth > AppConstants.compactWidthBreakpoint
+                          ? 3
+                          : 2;
+              final childAspectRatio = widget.isTabletLeftPane ? 2.5 : 0.68;
 
-              final product = listState.products[index];
-              return _StaggeredFadeIn(
-                index: index,
-                child: ProductCard(
-                  product: product,
-                  isSelected: product.id == selectedProductId,
-                  onTap: () => _onProductTap(product.id),
+              return GridView.builder(
+                controller: _scrollController,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: crossAxisCount,
+                  childAspectRatio: childAspectRatio,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
                 ),
+                itemCount: listState.products.length + (listState.isLoadingMore ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (index == listState.products.length) {
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(16),
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    );
+                  }
+
+                  final product = listState.products[index];
+                  return _StaggeredFadeIn(
+                    index: index,
+                    child: ProductCard(
+                      product: product,
+                      isSelected: product.id == selectedProductId,
+                      onTap: () => _onProductTap(product.id),
+                    ),
+                  );
+                },
               );
             },
           ),
@@ -269,7 +273,6 @@ class _StaggeredFadeInState extends State<_StaggeredFadeIn>
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
-    // Stagger the animation based on index, capped to avoid long waits
     final delay = Duration(milliseconds: (widget.index % 6) * 60);
     Future.delayed(delay, () {
       if (mounted) _controller.forward();

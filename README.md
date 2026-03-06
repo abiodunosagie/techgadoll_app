@@ -1,122 +1,128 @@
 # Product Catalog App
 
-A Flutter application that displays a product catalog using a custom design system, built for the Tech Gadol Senior Flutter Developer assessment.
+A Flutter application that displays a product catalog with a custom design system, responsive layouts, and offline support. Built for the Tech Gadol Senior Flutter Developer assessment.
 
-## Setup & Run Instructions
+## Setup & Run
 
-**Flutter version:** 3.38.4 (stable channel)
+**Requirements:** Flutter 3.38.4 (stable)
 
 ```bash
-# Clone the repository
 git clone https://github.com/abiodunosagie/techgadoll_app.git
 cd techgadoll_app
-
-# Install dependencies
 flutter pub get
-
-# Run the app
 flutter run
+```
 
+No API keys or environment variables needed. The app uses the public [DummyJSON](https://dummyjson.com) products API.
+
+```bash
 # Run tests
 flutter test
 
-# Run analysis
+# Static analysis
 flutter analyze
 ```
 
-The app targets iOS, Android, and Web platforms. No environment variables or API keys are needed since it uses the public DummyJSON API.
+## Architecture
 
-## Architecture Overview
-
-### Folder Structure
+The project follows a **feature-first** structure. Each feature owns its data and presentation layers. Shared UI components live in `shared/widgets/` as the design system.
 
 ```
 lib/
   core/
-    cache/            SQLite-based offline caching
-    constants/        App-wide constants (page size, breakpoints)
-    network/          HTTP client and API endpoints
-    theme/            Colors, ThemeData (light + dark)
-    utils/            Data validators, debouncer
-  shared/widgets/     Design system components (reusable across features)
+    cache/            SQLite offline cache (sqflite)
+    constants/        Breakpoints, page sizes, layout values
+    network/          HTTP client, API endpoints
+    theme/            Light + dark ThemeData, color tokens
+    utils/            Validators, debouncer
+  shared/widgets/     Reusable design system components
   features/
+    auth/             Login, signup with form validation
     products/
       data/
         models/       ProductModel, CategoryModel, ProductsResponse
-        repositories/ ProductRepository (API + cache layer)
+        repositories/ ProductRepository (network + cache)
       presentation/
-        providers/    Riverpod state management
-        screens/      ProductListScreen, ProductDetailScreen, ResponsiveShell
-        widgets/      ProductImageGallery, ProductInfoSection
-    onboarding/       One-time onboarding flow
-    showcase/         Component showcase screen (Enhancement A)
+        providers/    Riverpod providers and notifiers
+        screens/      Product list, detail, responsive shell
+        widgets/      Image gallery, info section
+    cart/             Shopping cart with local state
+    profile/          User profile, sign out
+    onboarding/       First-launch onboarding flow
     splash/           Animated splash screen
-  routing/            GoRouter configuration with deep linking
+    showcase/         Design system component showcase
+  routing/            GoRouter with deep linking
 test/
-  unit/               Model parsing, validators, provider state tests
-  widget/             Design system component widget tests
-  helpers/            Mock data and test utilities
+  unit/               Model parsing, validators, provider tests
+  widget/             Design system component tests
+  helpers/            Mock data and utilities
 ```
 
-### State Management: Riverpod
+### State Management
 
-I chose Riverpod over Bloc for this project because:
+I chose **Riverpod** for state management. The main reasons:
 
-- **Compile-safe dependency injection.** Providers are resolved at compile time, eliminating runtime errors from missing providers in the widget tree.
-- **Fine-grained reactivity.** `StateNotifierProvider` for the product list manages pagination, search debounce, and category filtering in a single, testable notifier. `FutureProvider.family` handles individual product detail fetching with automatic caching per product ID.
-- **No boilerplate.** Riverpod eliminates the need for separate event/state classes, reducing the number of files while keeping business logic cleanly separated from UI.
+- **Compile-safe providers.** Dependencies are resolved at compile time. No runtime errors from missing providers in the widget tree.
+- **Reactive data flow.** `StateNotifierProvider` manages the product list (pagination, search debounce, category filtering) in one testable notifier. `FutureProvider.family` handles product detail fetching with per-ID caching.
+- **Minimal boilerplate.** No separate event/state class files. Business logic stays cleanly separated from UI without the overhead.
 
-State flow: UI reads providers via `ref.watch()`, user actions update `StateProvider` values (search query, selected category), and the `ProductListNotifier` reacts to these changes automatically via `ref.listen()`.
+The data flow is straightforward: UI reads providers via `ref.watch()`, user interactions update `StateProvider` values (search query, selected category), and the `ProductListNotifier` reacts to changes via `ref.listen()`.
 
-### Key Architectural Decisions
+### Key Decisions
 
-| Decision | Rationale |
+| Decision | Why |
 |---|---|
-| Feature-first folder structure | Each feature owns its own data and presentation layers. Shared widgets live in `shared/` as the design system. |
-| `CachedResult<T>` wrapper | Repository methods return both the data and a `fromCache` boolean, allowing the UI to show a visual indicator when serving cached data. |
-| Client-side filtering for search + category | DummyJSON does not support searching within a category. When both are active, search results are fetched then filtered by category client-side. |
-| `ShellRoute` for responsive layout | The `ResponsiveProductShell` wraps product routes and uses `LayoutBuilder` to switch between master-detail (tablet) and push navigation (phone). |
-| Debounce in the notifier, not the widget | The search `TextField` fires `onChanged` immediately. The notifier debounces before making API calls. This keeps the widget pure and the debounce testable. |
+| Feature-first folders | Each feature is self-contained. Easy to navigate and scale. |
+| `CachedResult<T>` wrapper | Repository returns data + a `fromCache` flag so the UI can indicate stale data. |
+| Client-side category + search filtering | DummyJSON doesn't support combined search + category queries. Search results are fetched from the API, then filtered by category locally. |
+| Responsive shell with `LayoutBuilder` | Master-detail on tablets, push navigation on phones. Single widget handles the switch. |
+| Debounce in the notifier | The search field fires `onChanged` immediately. The notifier debounces before hitting the API, keeping the widget layer pure. |
 
-## Design System Rationale
+## Design System
 
-### Components
+Eight reusable components with minimal, composable APIs:
 
-| Component | API | Notes |
-|---|---|---|
-| `ProductCard` | `product`, `onTap`, `isSelected` | Displays thumbnail, brand, title, rating, and price. `isSelected` highlights the card in tablet master-detail. |
-| `PriceTag` | `price`, `discountPercentage`, `fontSize` | Handles `null` price with "Price unavailable" text. Shows original price crossed out with discount badge when applicable. |
-| `RatingBar` | `rating`, `reviewCount`, `size` | 5-star display with filled, half, and empty states. Optional review count. |
-| `CategoryChip` | `label`, `isSelected`, `onTap` | Animated selection state with primary color fill. |
-| `AppSearchBar` | `onChanged`, `hintText`, `initialValue` | TextField with search icon and clear button. Named `AppSearchBar` to avoid SDK conflict. |
-| `LoadingShimmer` | `itemCount` | Shimmer grid matching ProductCard proportions. |
-| `ErrorState` | `message`, `onRetry` | Error icon, message, and retry button. |
-| `EmptyState` | `title`, `subtitle`, `icon` | Centered message for no-results states. |
+| Component | Purpose |
+|---|---|
+| `ProductCard` | Grid card with image, brand, title, rating, price. Supports selection state for tablet. |
+| `PriceTag` | Formatted price with discount badge. Handles null price gracefully. |
+| `RatingBar` | 5-star display with filled, half, and empty states. |
+| `CategoryChip` | Filter chip with animated selection. |
+| `AppSearchBar` | Search field with clear button. Named to avoid SDK `SearchBar` conflict. |
+| `LoadingShimmer` | Shimmer placeholder grid matching card proportions. |
+| `ErrorState` | Error message with retry action. |
+| `EmptyState` | Lottie-animated empty state for no-results and empty cart. |
 
 ### Theming
 
-Both light and dark themes are built from `ColorScheme.fromSeed(seedColor: primaryGreen)` with manual overrides for card, chip, input, and button themes. The primary color is `#4EAC68`. Components read colors from `Theme.of(context)` and `AppColors` constants, so they adapt to both themes automatically.
+Two complete themes (light and dark) built on Material 3's `ColorScheme`. The light theme uses `ColorScheme.fromSeed()` with targeted overrides. The dark theme uses a manual `ColorScheme` constructor with neutral gray surfaces to prevent the warm green tint that `fromSeed` produces on dark backgrounds. Primary color: `#4EAC68`.
 
-### Deviations from Spec
+All components read colors from `Theme.of(context).colorScheme`, so they adapt to both themes automatically without any conditional `isDark` checks scattered through the codebase.
 
-- Used Riverpod instead of the encouraged Bloc/Cubit. The assessment states any solution is acceptable.
-- Added splash screen and onboarding flow beyond the spec to demonstrate a polished user experience.
+## Responsive Layout
 
-## Limitations
+The app adapts to phones, tablets, and large screens:
 
-With more time, I would improve:
+- **Phone:** Single-column grid (2 columns), push navigation to detail screen.
+- **Tablet:** Master-detail layout. Product list on the left, detail on the right. Grid columns increase with screen width.
+- **Auth screens:** Adaptive horizontal padding (wider margins on tablets) so form fields don't stretch edge to edge.
+- **Breakpoints** are centralized in `AppConstants` for consistency.
 
-- **Integration tests.** Add end-to-end tests with `integration_test` package covering the full user flow (search, filter, navigate to detail, responsive layout).
-- **Screen reader testing.** Semantic labels are in place on all interactive elements. Full VoiceOver/TalkBack testing across devices would validate the experience.
+## Offline Support
 
-## AI Tools Usage
+Products are cached locally using **sqflite**. When the network is unavailable, the app serves cached data and displays a subtle indicator. The `ProductRepository` implements a cache-through pattern: fetch from API, write to SQLite, fall back to cache on failure. Cache entries expire after a configurable TTL.
 
-I used Claude (Anthropic) as an AI assistant during development. Here is how it was used:
+## Testing
 
-- **Project scaffolding.** Generated the initial folder structure, pubspec.yaml dependencies, and boilerplate files.
-- **Design system components.** Generated initial widget implementations for ProductCard, PriceTag, RatingBar, and other design system components. I reviewed and refined the component APIs to ensure they were minimal and composable.
-- **State management setup.** Generated the Riverpod provider structure and ProductListNotifier. I refined the search + category combination logic and the CachedResult wrapper pattern.
-- **Test generation.** Generated test scaffolding for models, validators, and widget tests. I adjusted async timing in provider tests and added edge case coverage.
-- **Offline caching.** Generated the SQLite cache implementation. I reviewed the cache invalidation strategy and the cache-through pattern in the repository.
+- **Unit tests:** Model JSON parsing, data validators, `ProductListNotifier` state transitions (loading, pagination, search, category filtering, error handling, cache fallback).
+- **Widget tests:** All design system components (EmptyState, ErrorState, PriceTag, RatingBar) tested for rendering, interaction, and edge cases.
 
-All generated code was reviewed, tested, and refined before committing. The architecture decisions (Riverpod over Bloc, CachedResult pattern, client-side category filtering, ShellRoute for responsive layout) were deliberate choices, not AI defaults.
+## Spec Deviations
+
+- Used **Riverpod** instead of Bloc/Cubit. The assessment allows any state management approach.
+- Added **splash screen**, **onboarding flow**, and **auth screens** beyond the spec to demonstrate a complete user experience.
+
+## What I Would Improve
+
+- **Integration tests.** End-to-end flows with the `integration_test` package covering search, filter, navigation, and responsive layout transitions.
+- **Accessibility audit.** Semantic labels are on all interactive elements, but a full VoiceOver/TalkBack pass across devices would be valuable.

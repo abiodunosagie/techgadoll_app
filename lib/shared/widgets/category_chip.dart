@@ -15,43 +15,27 @@ class CategoryChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
 
-    return Semantics(
-      label: isSelected ? '$label category, selected' : '$label category',
-      button: true,
-      child: GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? AppColors.primary
-              : isDark
-                  ? AppColors.darkCard
-                  : AppColors.surface,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected
-                ? AppColors.primary
-                : isDark
-                    ? AppColors.darkBorder
-                    : AppColors.border,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-            color: isSelected
-                ? Colors.white
-                : Theme.of(context).colorScheme.onSurface,
-          ),
-        ),
+    return ChoiceChip(
+      label: Text(label),
+      selected: isSelected,
+      onSelected: (_) => onTap(),
+      labelStyle: TextStyle(
+        fontSize: 13,
+        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+        color: isSelected ? colorScheme.onPrimary : colorScheme.onSurface,
       ),
-    ),
+      selectedColor: AppColors.primary,
+      backgroundColor: colorScheme.surface,
+      side: BorderSide(
+        color: isSelected ? AppColors.primary : colorScheme.outline,
+      ),
+      shape: const StadiumBorder(),
+      showCheckmark: false,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      visualDensity: VisualDensity.compact,
+      padding: const EdgeInsets.symmetric(horizontal: 4),
     );
   }
 }

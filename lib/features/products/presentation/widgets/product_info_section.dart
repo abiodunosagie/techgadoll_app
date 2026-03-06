@@ -11,12 +11,13 @@ class ProductInfoSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Brand + Category
           Row(
             children: [
               if (product.brand != null) ...[
@@ -49,7 +50,6 @@ class ProductInfoSection extends StatelessWidget {
           ),
           const SizedBox(height: 8),
 
-          // Title
           Text(
             product.title,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -58,11 +58,9 @@ class ProductInfoSection extends StatelessWidget {
           ),
           const SizedBox(height: 12),
 
-          // Rating
           RatingBar(rating: product.rating, size: 20),
           const SizedBox(height: 16),
 
-          // Price
           PriceTag(
             price: product.price,
             discountPercentage: product.discountPercentage,
@@ -70,11 +68,9 @@ class ProductInfoSection extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // Stock
           _buildStockBadge(),
           const SizedBox(height: 20),
 
-          // Description
           Text(
             'Description',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -87,9 +83,7 @@ class ProductInfoSection extends StatelessWidget {
             style: TextStyle(
               fontSize: 15,
               height: 1.5,
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? AppColors.darkTextSecondary
-                  : AppColors.textSecondary,
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
         ],

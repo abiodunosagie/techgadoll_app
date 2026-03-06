@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../features/products/data/models/product_model.dart';
 import '../../../../shared/widgets/category_chip.dart';
 import '../../../../shared/widgets/empty_state.dart';
@@ -17,154 +18,149 @@ class ShowcaseScreen extends StatefulWidget {
 }
 
 class _ShowcaseScreenState extends State<ShowcaseScreen> {
-  ThemeMode _themeMode = ThemeMode.light;
+  bool _isDark = false;
 
   @override
   Widget build(BuildContext context) {
-    final theme = _themeMode == ThemeMode.dark
-        ? ThemeData.dark(useMaterial3: true)
-        : Theme.of(context);
+    final theme = _isDark ? AppTheme.dark() : AppTheme.light();
 
     return Theme(
       data: theme,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Component Showcase'),
-          actions: [
-            IconButton(
-              icon: Icon(
-                _themeMode == ThemeMode.dark
-                    ? Icons.light_mode
-                    : Icons.dark_mode,
-              ),
-              onPressed: () {
-                setState(() {
-                  _themeMode = _themeMode == ThemeMode.dark
-                      ? ThemeMode.light
-                      : ThemeMode.dark;
-                });
-              },
-              tooltip: 'Toggle theme',
-            ),
-          ],
-        ),
-        body: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            _sectionTitle('RatingBar'),
-            const SizedBox(height: 8),
-            const Wrap(
-              spacing: 24,
-              runSpacing: 8,
-              children: [
-                RatingBar(rating: 5.0),
-                RatingBar(rating: 3.5),
-                RatingBar(rating: 1.0),
-                RatingBar(rating: 0.0),
-                RatingBar(rating: 4.2, reviewCount: 128),
+      child: Builder(
+        builder: (themedContext) {
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('Component Showcase'),
+              actions: [
+                IconButton(
+                  icon: Icon(_isDark ? Icons.light_mode : Icons.dark_mode),
+                  onPressed: () => setState(() => _isDark = !_isDark),
+                  tooltip: 'Toggle theme',
+                ),
               ],
             ),
-            const Divider(height: 32),
-
-            _sectionTitle('PriceTag'),
-            const SizedBox(height: 8),
-            const Wrap(
-              spacing: 24,
-              runSpacing: 12,
+            body: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               children: [
-                PriceTag(price: 49.99),
-                PriceTag(price: 99.99, discountPercentage: 20),
-                PriceTag(price: null),
-                PriceTag(price: 1299.99, discountPercentage: 15.5, fontSize: 20),
-              ],
-            ),
-            const Divider(height: 32),
+                _section(themedContext, 'RatingBar'),
+                const Wrap(
+                  spacing: 20,
+                  runSpacing: 8,
+                  children: [
+                    RatingBar(rating: 5.0),
+                    RatingBar(rating: 3.5),
+                    RatingBar(rating: 1.0),
+                    RatingBar(rating: 0.0),
+                    RatingBar(rating: 4.2, reviewCount: 128),
+                  ],
+                ),
+                _divider(),
 
-            _sectionTitle('CategoryChip'),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                CategoryChip(label: 'All', isSelected: true, onTap: () {}),
-                CategoryChip(label: 'Electronics', isSelected: false, onTap: () {}),
-                CategoryChip(label: 'Furniture', isSelected: false, onTap: () {}),
-                CategoryChip(label: 'Fragrances', isSelected: false, onTap: () {}),
-              ],
-            ),
-            const Divider(height: 32),
+                _section(themedContext, 'PriceTag'),
+                const Wrap(
+                  spacing: 20,
+                  runSpacing: 12,
+                  children: [
+                    PriceTag(price: 49.99),
+                    PriceTag(price: 99.99, discountPercentage: 20),
+                    PriceTag(price: null),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                const PriceTag(price: 1299.99, discountPercentage: 15.5, fontSize: 20),
+                _divider(),
 
-            _sectionTitle('AppSearchBar'),
-            const SizedBox(height: 8),
-            AppSearchBar(onChanged: (_) {}),
-            const Divider(height: 32),
+                _section(themedContext, 'CategoryChip'),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    CategoryChip(label: 'All', isSelected: true, onTap: () {}),
+                    CategoryChip(label: 'Electronics', isSelected: false, onTap: () {}),
+                    CategoryChip(label: 'Furniture', isSelected: false, onTap: () {}),
+                    CategoryChip(label: 'Fragrances', isSelected: false, onTap: () {}),
+                  ],
+                ),
+                _divider(),
 
-            _sectionTitle('ErrorState'),
-            const SizedBox(height: 8),
-            SizedBox(
-              height: 250,
-              child: ErrorState(
-                message: 'Failed to load products. Please check your connection.',
-                onRetry: () {},
-              ),
-            ),
-            const Divider(height: 32),
+                _section(themedContext, 'AppSearchBar'),
+                AppSearchBar(onChanged: (_) {}),
+                _divider(),
 
-            _sectionTitle('EmptyState'),
-            const SizedBox(height: 8),
-            const SizedBox(
-              height: 200,
-              child: EmptyState(
-                title: 'No products found',
-                subtitle: 'Try adjusting your search or filter.',
-              ),
-            ),
-            const Divider(height: 32),
-
-            _sectionTitle('LoadingShimmer'),
-            const SizedBox(height: 8),
-            const SizedBox(
-              height: 400,
-              child: LoadingShimmer(itemCount: 4),
-            ),
-            const Divider(height: 32),
-
-            _sectionTitle('ProductCard'),
-            const SizedBox(height: 8),
-            SizedBox(
-              height: 320,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: ProductCard(
-                      product: _sampleProduct,
-                      onTap: () {},
-                    ),
+                _section(themedContext, 'ErrorState'),
+                SizedBox(
+                  height: 300,
+                  child: ErrorState(
+                    message: 'Failed to load products. Please check your connection.',
+                    onRetry: () {},
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ProductCard(
-                      product: _sampleProductNoDiscount,
-                      onTap: () {},
-                      isSelected: true,
-                    ),
+                ),
+                _divider(),
+
+                _section(themedContext, 'EmptyState'),
+                const SizedBox(
+                  height: 240,
+                  child: EmptyState(
+                    title: 'No products found',
+                    subtitle: 'Try adjusting your search or filter.',
                   ),
-                ],
-              ),
+                ),
+                _divider(),
+
+                _section(themedContext, 'LoadingShimmer'),
+                const SizedBox(
+                  height: 400,
+                  child: LoadingShimmer(itemCount: 4),
+                ),
+                _divider(),
+
+                _section(themedContext, 'ProductCard'),
+                SizedBox(
+                  height: 320,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: ProductCard(
+                          product: _sampleProduct,
+                          onTap: () {},
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ProductCard(
+                          product: _sampleProductNoDiscount,
+                          onTap: () {},
+                          isSelected: true,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 32),
+              ],
             ),
-            const SizedBox(height: 32),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
 
-  Widget _sectionTitle(String title) {
-    return Text(
-      title,
-      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
+  Widget _section(BuildContext themedContext, String title) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Text(
+        title,
+        style: Theme.of(themedContext).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+      ),
+    );
+  }
+
+  Widget _divider() {
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 16),
+      child: Divider(height: 1),
     );
   }
 

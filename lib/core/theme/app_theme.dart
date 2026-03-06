@@ -68,6 +68,13 @@ class AppTheme {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         ),
       ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: AppColors.surface,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+      ),
       dividerTheme: const DividerThemeData(
         color: AppColors.divider,
         thickness: 1,
@@ -79,14 +86,25 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: AppColors.primary,
+      colorScheme: const ColorScheme(
         brightness: Brightness.dark,
-      ).copyWith(
         primary: AppColors.primaryLight,
         onPrimary: Colors.black,
+        secondary: AppColors.primaryLight,
+        onSecondary: Colors.black,
         surface: AppColors.darkSurface,
+        onSurface: AppColors.darkTextPrimary,
+        surfaceContainerLowest: AppColors.darkBackground,
+        surfaceContainerLow: Color(0xFF1A1A1A),
+        surfaceContainer: AppColors.darkSurface,
+        surfaceContainerHigh: AppColors.darkCard,
+        surfaceContainerHighest: Color(0xFF333333),
+        outline: AppColors.darkBorder,
+        outlineVariant: Color(0xFF2E2E2E),
         error: AppColors.error,
+        onError: Colors.white,
+        inverseSurface: AppColors.darkTextPrimary,
+        onInverseSurface: AppColors.darkBackground,
       ),
       scaffoldBackgroundColor: AppColors.darkBackground,
       appBarTheme: const AppBarTheme(
@@ -137,6 +155,13 @@ class AppTheme {
             borderRadius: BorderRadius.circular(12),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        ),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: AppColors.darkSurface,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
         ),
       ),
       dividerTheme: const DividerThemeData(

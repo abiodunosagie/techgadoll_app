@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../shared/widgets/empty_state.dart';
 import '../providers/cart_provider.dart';
 
 class CartScreen extends ConsumerWidget {
@@ -10,7 +11,6 @@ class CartScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cart = ref.watch(cartProvider);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
@@ -18,57 +18,49 @@ class CartScreen extends ConsumerWidget {
         actions: [
           if (cart.items.isNotEmpty)
             TextButton(
-              onPressed: () {
-                ref.read(cartProvider.notifier).clearCart();
-              },
+              onPressed: () => ref.read(cartProvider.notifier).clearCart(),
               child: const Text('Clear All'),
             ),
         ],
       ),
       body: cart.items.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.shopping_cart_outlined,
-                    size: 80,
-                    color: isDark ? AppColors.darkTextSecondary : AppColors.textTertiary,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Your cart is empty',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Browse products and add items to your cart.',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
+          ? const EmptyState(
+              title: 'Your cart is empty',
+              subtitle: 'Browse products and add items to your cart.',
+              icon: Icons.shopping_cart_outlined,
             )
-          : Column(
-              children: [
-                Expanded(
-                  child: ListView.separated(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: cart.items.length,
-                    separatorBuilder: (_, _) => const SizedBox(height: 12),
-                    itemBuilder: (context, index) {
-                      final item = cart.items[index];
-                      return _CartItemCard(item: item);
-                    },
-                  ),
-                ),
-                _CartSummary(cart: cart),
-              ],
+          : _CartContent(cart: cart),
+    );
+  }
+}
+
+class _CartContent extends StatelessWidget {
+  final CartState cart;
+
+  const _CartContent({required this.cart});
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final horizontalPadding = screenWidth > 600 ? 40.0 : 16.0;
+
+    return Column(
+      children: [
+        Expanded(
+          child: ListView.separated(
+            padding: EdgeInsets.symmetric(
+              horizontal: horizontalPadding,
+              vertical: 16,
             ),
+            itemCount: cart.items.length,
+            separatorBuilder: (_, _) => const SizedBox(height: 12),
+            itemBuilder: (context, index) {
+              return _CartItemCard(item: cart.items[index]);
+            },
+          ),
+        ),
+        _CartSummary(cart: cart),
+      ],
     );
   }
 }
@@ -94,7 +86,6 @@ class _CartItemCard extends ConsumerWidget {
       ),
       child: Row(
         children: [
-          // Product image
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: SizedBox(
@@ -116,7 +107,6 @@ class _CartItemCard extends ConsumerWidget {
             ),
           ),
           const SizedBox(width: 12),
-          // Product info
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -133,14 +123,13 @@ class _CartItemCard extends ConsumerWidget {
                 const SizedBox(height: 4),
                 Text(
                   '\$${unitPrice.toStringAsFixed(2)}',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: AppColors.primary,
                   ),
                 ),
                 const SizedBox(height: 8),
-                // Quantity controls
                 Row(
                   children: [
                     _QuantityButton(
@@ -176,7 +165,7 @@ class _CartItemCard extends ConsumerWidget {
                       onTap: () {
                         ref.read(cartProvider.notifier).removeFromCart(item.product.id);
                       },
-                      child: Icon(
+                      child: const Icon(
                         Icons.delete_outline,
                         size: 20,
                         color: AppColors.error,
@@ -228,12 +217,14 @@ class _CartSummary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final horizontalPadding = screenWidth > 600 ? 40.0 : 20.0;
 
     return Container(
       padding: EdgeInsets.fromLTRB(
-        20,
+        horizontalPadding,
         16,
-        20,
+        horizontalPadding,
         MediaQuery.of(context).padding.bottom + 16,
       ),
       decoration: BoxDecoration(

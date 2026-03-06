@@ -8,9 +8,9 @@ class LoadingShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final baseColor = isDark ? Colors.grey[800]! : Colors.grey[300]!;
-    final highlightColor = isDark ? Colors.grey[700]! : Colors.grey[100]!;
+    final colorScheme = Theme.of(context).colorScheme;
+    final baseColor = colorScheme.surfaceContainerHighest;
+    final highlightColor = colorScheme.surfaceContainerLow;
 
     return GridView.builder(
       shrinkWrap: true,

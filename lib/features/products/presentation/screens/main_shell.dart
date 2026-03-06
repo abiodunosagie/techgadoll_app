@@ -23,59 +23,127 @@ class _MainShellState extends ConsumerState<MainShell> {
   @override
   Widget build(BuildContext context) {
     final cartState = ref.watch(cartProvider);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       body: IndexedStack(
         index: _selectedIndex,
         children: [
-          _ShopTab(),
+          const _ShopTab(),
           const CartScreen(),
           const ProfileScreen(),
         ],
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(
-              color: isDark ? AppColors.darkBorder : AppColors.border,
-              width: 0.5,
+          color: colorScheme.surface,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 12,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _NavItem(
+                  icon: Icons.storefront_outlined,
+                  activeIcon: Icons.storefront,
+                  label: 'Shop',
+                  isSelected: _selectedIndex == 0,
+                  onTap: () => setState(() => _selectedIndex = 0),
+                ),
+                _NavItem(
+                  icon: Icons.shopping_cart_outlined,
+                  activeIcon: Icons.shopping_cart,
+                  label: 'Cart',
+                  isSelected: _selectedIndex == 1,
+                  badgeCount: cartState.totalItems,
+                  onTap: () => setState(() => _selectedIndex = 1),
+                ),
+                _NavItem(
+                  icon: Icons.person_outline,
+                  activeIcon: Icons.person,
+                  label: 'Profile',
+                  isSelected: _selectedIndex == 2,
+                  onTap: () => setState(() => _selectedIndex = 2),
+                ),
+              ],
             ),
           ),
         ),
-        child: NavigationBar(
-          selectedIndex: _selectedIndex,
-          onDestinationSelected: (index) {
-            setState(() => _selectedIndex = index);
-          },
-          backgroundColor: isDark ? AppColors.darkSurface : AppColors.surface,
-          indicatorColor: AppColors.primarySurface,
-          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-          height: 64,
-          destinations: [
-            const NavigationDestination(
-              icon: Icon(Icons.storefront_outlined),
-              selectedIcon: Icon(Icons.storefront, color: AppColors.primary),
-              label: 'Shop',
-            ),
-            NavigationDestination(
-              icon: Badge(
-                isLabelVisible: cartState.totalItems > 0,
-                label: Text('${cartState.totalItems}'),
-                child: const Icon(Icons.shopping_cart_outlined),
+      ),
+    );
+  }
+}
+
+class _NavItem extends StatelessWidget {
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+  final bool isSelected;
+  final int badgeCount;
+  final VoidCallback onTap;
+
+  const _NavItem({
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+    this.badgeCount = 0,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
+        padding: EdgeInsets.symmetric(
+          horizontal: isSelected ? 20 : 16,
+          vertical: 8,
+        ),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primarySurface : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Badge(
+              isLabelVisible: badgeCount > 0,
+              label: Text(
+                '$badgeCount',
+                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600),
               ),
-              selectedIcon: Badge(
-                isLabelVisible: cartState.totalItems > 0,
-                label: Text('${cartState.totalItems}'),
-                child: const Icon(Icons.shopping_cart, color: AppColors.primary),
+              child: Icon(
+                isSelected ? activeIcon : icon,
+                size: 22,
+                color: isSelected ? AppColors.primary : colorScheme.onSurfaceVariant,
               ),
-              label: 'Cart',
             ),
-            const NavigationDestination(
-              icon: Icon(Icons.person_outline),
-              selectedIcon: Icon(Icons.person, color: AppColors.primary),
-              label: 'Profile',
-            ),
+            if (isSelected) ...[
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primary,
+                ),
+              ),
+            ],
           ],
         ),
       ),
@@ -83,8 +151,9 @@ class _MainShellState extends ConsumerState<MainShell> {
   }
 }
 
-/// Shop tab with responsive master-detail layout for tablets
 class _ShopTab extends ConsumerWidget {
+  const _ShopTab();
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return LayoutBuilder(

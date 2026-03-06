@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../providers/auth_provider.dart';
 
@@ -108,14 +109,14 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final isSmallScreen = screenHeight < 700;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final mediaQuery = MediaQuery.of(context);
+    final isSmallScreen = mediaQuery.size.height < AppConstants.smallHeightBreakpoint;
+    final colorScheme = Theme.of(context).colorScheme;
+    final horizontalPadding = mediaQuery.size.width > AppConstants.compactWidthBreakpoint ? 80.0 : 24.0;
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        backgroundColor: isDark ? AppColors.darkBackground : AppColors.surface,
         body: SafeArea(
           child: CustomScrollView(
             physics: const ClampingScrollPhysics(),
@@ -123,18 +124,18 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
               SliverFillRemaining(
                 hasScrollBody: false,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(height: isSmallScreen ? 24 : 40),
-                      _buildHeader(isSmallScreen, isDark),
+                      _buildHeader(isSmallScreen, colorScheme),
                       SizedBox(height: isSmallScreen ? 20 : 32),
-                      _buildForm(isSmallScreen, isDark),
+                      _buildForm(isSmallScreen, colorScheme),
                       SizedBox(height: isSmallScreen ? 20 : 28),
-                      _buildRegisterButton(),
+                      _buildRegisterButton(colorScheme),
                       const Spacer(),
-                      _buildLoginLink(isDark),
+                      _buildLoginLink(colorScheme),
                       SizedBox(height: isSmallScreen ? 16 : 24),
                     ],
                   ),
@@ -147,7 +148,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     );
   }
 
-  Widget _buildHeader(bool isSmallScreen, bool isDark) {
+  Widget _buildHeader(bool isSmallScreen, ColorScheme colorScheme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -156,7 +157,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
           style: TextStyle(
             fontSize: isSmallScreen ? 26 : 30,
             fontWeight: FontWeight.w700,
-            color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+            color: colorScheme.onSurface,
             height: 1.2,
             letterSpacing: -0.5,
           ),
@@ -167,7 +168,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
           style: TextStyle(
             fontSize: isSmallScreen ? 14 : 15,
             fontWeight: FontWeight.w400,
-            color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+            color: colorScheme.onSurfaceVariant,
             height: 1.5,
           ),
         ),
@@ -175,19 +176,19 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     );
   }
 
-  Widget _buildForm(bool isSmallScreen, bool isDark) {
+  Widget _buildForm(bool isSmallScreen, ColorScheme colorScheme) {
     return Form(
       key: _formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildLabel('Full Name', isDark),
+          _buildLabel('Full Name', colorScheme),
           const SizedBox(height: 8),
           _buildTextField(
             controller: _fullNameController,
             focusNode: _fullNameFocus,
             hint: 'John Doe',
-            isDark: isDark,
+            colorScheme: colorScheme,
             keyboardType: TextInputType.name,
             textInputAction: TextInputAction.next,
             onFieldSubmitted: (_) => _emailFocus.requestFocus(),
@@ -199,13 +200,13 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
           ),
           SizedBox(height: isSmallScreen ? 16 : 20),
 
-          _buildLabel('Email', isDark),
+          _buildLabel('Email', colorScheme),
           const SizedBox(height: 8),
           _buildTextField(
             controller: _emailController,
             focusNode: _emailFocus,
             hint: 'example@gmail.com',
-            isDark: isDark,
+            colorScheme: colorScheme,
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
             onFieldSubmitted: (_) => _passwordFocus.requestFocus(),
@@ -219,13 +220,13 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
           ),
           SizedBox(height: isSmallScreen ? 16 : 20),
 
-          _buildLabel('Password', isDark),
+          _buildLabel('Password', colorScheme),
           const SizedBox(height: 8),
           _buildTextField(
             controller: _passwordController,
             focusNode: _passwordFocus,
             hint: '\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022',
-            isDark: isDark,
+            colorScheme: colorScheme,
             obscureText: _obscurePassword,
             textInputAction: TextInputAction.next,
             onFieldSubmitted: (_) => _confirmPasswordFocus.requestFocus(),
@@ -233,7 +234,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
               onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
               icon: Icon(
                 _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                color: isDark ? AppColors.darkTextSecondary : AppColors.textTertiary,
+                color: colorScheme.onSurfaceVariant,
                 size: 22,
               ),
             ),
@@ -246,16 +247,16 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
             },
           ),
           const SizedBox(height: 8),
-          _buildPasswordRequirements(isDark),
+          _buildPasswordRequirements(colorScheme),
           SizedBox(height: isSmallScreen ? 16 : 20),
 
-          _buildLabel('Confirm Password', isDark),
+          _buildLabel('Confirm Password', colorScheme),
           const SizedBox(height: 8),
           _buildTextField(
             controller: _confirmPasswordController,
             focusNode: _confirmPasswordFocus,
             hint: '\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022',
-            isDark: isDark,
+            colorScheme: colorScheme,
             obscureText: _obscureConfirmPassword,
             textInputAction: TextInputAction.done,
             onFieldSubmitted: (_) => _handleRegister(),
@@ -263,7 +264,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
               onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
               icon: Icon(
                 _obscureConfirmPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                color: isDark ? AppColors.darkTextSecondary : AppColors.textTertiary,
+                color: colorScheme.onSurfaceVariant,
                 size: 22,
               ),
             ),
@@ -280,13 +281,13 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     );
   }
 
-  Widget _buildLabel(String text, bool isDark) {
+  Widget _buildLabel(String text, ColorScheme colorScheme) {
     return Text(
       text,
       style: TextStyle(
         fontSize: 14,
         fontWeight: FontWeight.w500,
-        color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+        color: colorScheme.onSurface,
       ),
     );
   }
@@ -295,7 +296,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     required TextEditingController controller,
     required FocusNode focusNode,
     required String hint,
-    required bool isDark,
+    required ColorScheme colorScheme,
     TextInputType keyboardType = TextInputType.text,
     TextInputAction textInputAction = TextInputAction.next,
     bool obscureText = false,
@@ -309,21 +310,16 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       keyboardType: keyboardType,
       textInputAction: textInputAction,
       obscureText: obscureText,
-      style: TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.w400,
-        color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
-      ),
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w400,
-          color: isDark ? AppColors.darkTextSecondary : AppColors.textTertiary,
+          color: colorScheme.onSurfaceVariant,
         ),
         suffixIcon: suffixIcon,
         filled: true,
-        fillColor: isDark ? AppColors.darkCard : AppColors.surface,
+        fillColor: colorScheme.surfaceContainerHigh,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -331,10 +327,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: isDark ? AppColors.darkBorder : AppColors.border,
-            width: 1,
-          ),
+          borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -354,35 +347,32 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     );
   }
 
-  Widget _buildPasswordRequirements(bool isDark) {
+  Widget _buildPasswordRequirements(ColorScheme colorScheme) {
     return Wrap(
       spacing: 16,
       runSpacing: 4,
       children: [
-        _buildRequirement('Min 8 characters', _hasMinLength, isDark),
-        _buildRequirement('1 uppercase', _hasUppercase, isDark),
-        _buildRequirement('1 special character', _hasSpecialChar, isDark),
+        _buildRequirement('Min 8 characters', _hasMinLength, colorScheme),
+        _buildRequirement('1 uppercase', _hasUppercase, colorScheme),
+        _buildRequirement('1 special character', _hasSpecialChar, colorScheme),
       ],
     );
   }
 
-  Widget _buildRequirement(String text, bool isMet, bool isDark) {
+  Widget _buildRequirement(String text, bool isMet, ColorScheme colorScheme) {
+    final color = isMet ? AppColors.primary : colorScheme.onSurfaceVariant;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(
           isMet ? Icons.check_circle : Icons.circle_outlined,
           size: 14,
-          color: isMet ? AppColors.primary : (isDark ? AppColors.darkTextSecondary : AppColors.textTertiary),
+          color: color,
         ),
         const SizedBox(width: 4),
         Text(
           text,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w400,
-            color: isMet ? AppColors.primary : (isDark ? AppColors.darkTextSecondary : AppColors.textTertiary),
-          ),
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: color),
         ),
       ],
     );
@@ -412,7 +402,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     );
   }
 
-  Widget _buildRegisterButton() {
+  Widget _buildRegisterButton(ColorScheme colorScheme) {
     final isLoading = ref.watch(authProvider).isLoading;
 
     return SizedBox(
@@ -422,20 +412,18 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
         onPressed: isLoading ? null : _handleRegister,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
+          foregroundColor: colorScheme.onPrimary,
           disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.6),
           elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
         child: isLoading
-            ? const SizedBox(
+            ? SizedBox(
                 width: 22,
                 height: 22,
                 child: CircularProgressIndicator(
                   strokeWidth: 2.5,
-                  color: Colors.white,
+                  color: colorScheme.onPrimary,
                 ),
               )
             : const Text(
@@ -446,7 +434,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     );
   }
 
-  Widget _buildLoginLink(bool isDark) {
+  Widget _buildLoginLink(ColorScheme colorScheme) {
     return Center(
       child: GestureDetector(
         onTap: () => context.pop(),
@@ -459,7 +447,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w400,
-                color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                color: colorScheme.onSurfaceVariant,
               ),
               children: const [
                 TextSpan(

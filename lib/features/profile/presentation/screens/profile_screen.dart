@@ -10,14 +10,13 @@ class ProfileScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final auth = ref.watch(authProvider);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Profile')),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          // Avatar + name
           Center(
             child: Column(
               children: [
@@ -45,7 +44,7 @@ class ProfileScreen extends ConsumerWidget {
                   auth.currentUserEmail ?? '',
                   style: TextStyle(
                     fontSize: 14,
-                    color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -80,23 +79,96 @@ class ProfileScreen extends ConsumerWidget {
             onTap: () async {
               final confirmed = await showDialog<bool>(
                 context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('Sign Out'),
-                  content: const Text('Are you sure you want to sign out?'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, false),
-                      child: const Text('Cancel'),
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, true),
-                      child: Text(
-                        'Sign Out',
-                        style: TextStyle(color: AppColors.error),
+                builder: (dialogContext) {
+                  final cs = Theme.of(dialogContext).colorScheme;
+                  return Dialog(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 56,
+                            height: 56,
+                            decoration: BoxDecoration(
+                              color: AppColors.errorSurface,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.logout_rounded,
+                              color: AppColors.error,
+                              size: 28,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Sign Out',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: cs.onSurface,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Are you sure you want to sign out? You will need to sign in again to access your account.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: cs.onSurfaceVariant,
+                              height: 1.4,
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: SizedBox(
+                                  height: 46,
+                                  child: OutlinedButton(
+                                    onPressed: () => Navigator.pop(dialogContext, false),
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: cs.onSurface,
+                                      side: BorderSide(color: cs.outlineVariant),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                    child: const Text(
+                                      'Cancel',
+                                      style: TextStyle(fontWeight: FontWeight.w600),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: SizedBox(
+                                  height: 46,
+                                  child: ElevatedButton(
+                                    onPressed: () => Navigator.pop(dialogContext, true),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.error,
+                                      foregroundColor: Colors.white,
+                                      elevation: 0,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                    child: const Text(
+                                      'Sign Out',
+                                      style: TextStyle(fontWeight: FontWeight.w600),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
+                  );
+                },
               );
               if (confirmed == true) {
                 await ref.read(authProvider.notifier).logout();
@@ -132,10 +204,8 @@ class _ProfileTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final color = isDestructive
-        ? AppColors.error
-        : (isDark ? AppColors.darkTextPrimary : AppColors.textPrimary);
+    final colorScheme = Theme.of(context).colorScheme;
+    final color = isDestructive ? AppColors.error : colorScheme.onSurface;
 
     return ListTile(
       leading: Icon(icon, color: color, size: 22),
@@ -150,7 +220,7 @@ class _ProfileTile extends StatelessWidget {
       trailing: Icon(
         Icons.chevron_right,
         size: 20,
-        color: isDark ? AppColors.darkTextSecondary : AppColors.textTertiary,
+        color: colorScheme.onSurfaceVariant,
       ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       onTap: onTap,

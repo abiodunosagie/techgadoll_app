@@ -27,12 +27,13 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   void _setupSystemUI() {
+    final isDark = WidgetsBinding.instance.platformDispatcher.platformBrightness == Brightness.dark;
     SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
+      SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark,
-        systemNavigationBarColor: Color(0xFFF8FBF9),
-        systemNavigationBarIconBrightness: Brightness.dark,
+        statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+        systemNavigationBarColor: isDark ? AppColors.darkBackground : AppColors.background,
+        systemNavigationBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
       ),
     );
   }
@@ -101,8 +102,10 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FBF9),
+      backgroundColor: colorScheme.surface,
       body: Center(
         child: AnimatedBuilder(
           animation: Listenable.merge([_fadeAnimation, _scaleAnimation]),
@@ -115,18 +118,18 @@ class _SplashScreenState extends State<SplashScreen>
               ),
             );
           },
-          child: _buildLogo(),
+          child: _buildLogo(colorScheme),
         ),
       ),
     );
   }
 
-  Widget _buildLogo() {
+  Widget _buildLogo(ColorScheme colorScheme) {
     return Container(
       width: 140,
       height: 140,
       decoration: BoxDecoration(
-        color: AppColors.primarySurface,
+        color: colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(32),
         boxShadow: [
           BoxShadow(
@@ -144,7 +147,7 @@ class _SplashScreenState extends State<SplashScreen>
           height: 80,
           fit: BoxFit.contain,
           errorBuilder: (context, error, stackTrace) {
-            return Icon(
+            return const Icon(
               Icons.shopping_bag_outlined,
               size: 64,
               color: AppColors.primary,

@@ -15,17 +15,19 @@ class PriceTag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     if (price == null) {
       return Semantics(
         label: 'Price unavailable',
         child: Text(
-        'Price unavailable',
-        style: TextStyle(
-          fontSize: fontSize,
-          color: AppColors.textSecondary,
-          fontStyle: FontStyle.italic,
+          'Price unavailable',
+          style: TextStyle(
+            fontSize: fontSize,
+            color: colorScheme.onSurfaceVariant,
+            fontStyle: FontStyle.italic,
+          ),
         ),
-      ),
       );
     }
 
@@ -38,47 +40,47 @@ class PriceTag extends StatelessWidget {
     return Semantics(
       label: semanticLabel,
       child: Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(
-          '\$${discountedPrice.toStringAsFixed(2)}',
-          style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: FontWeight.w700,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
-        ),
-        if (hasDiscount) ...[
-          const SizedBox(width: 6),
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
           Text(
-            '\$${price!.toStringAsFixed(2)}',
+            '\$${discountedPrice.toStringAsFixed(2)}',
             style: TextStyle(
-              fontSize: fontSize * 0.8,
-              color: AppColors.textTertiary,
-              decoration: TextDecoration.lineThrough,
-              decorationColor: AppColors.textTertiary,
+              fontSize: fontSize,
+              fontWeight: FontWeight.w700,
+              color: colorScheme.onSurface,
             ),
           ),
-          const SizedBox(width: 6),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(
-              color: AppColors.discountSurface,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Text(
-              '-${discountPercentage.toStringAsFixed(0)}%',
+          if (hasDiscount) ...[
+            const SizedBox(width: 6),
+            Text(
+              '\$${price!.toStringAsFixed(2)}',
               style: TextStyle(
-                fontSize: fontSize * 0.7,
-                fontWeight: FontWeight.w600,
-                color: AppColors.discount,
+                fontSize: fontSize * 0.8,
+                color: colorScheme.onSurfaceVariant,
+                decoration: TextDecoration.lineThrough,
+                decorationColor: colorScheme.onSurfaceVariant,
               ),
             ),
-          ),
+            const SizedBox(width: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: AppColors.discountSurface,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                '-${discountPercentage.toStringAsFixed(0)}%',
+                style: TextStyle(
+                  fontSize: fontSize * 0.7,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.discount,
+                ),
+              ),
+            ),
+          ],
         ],
-      ],
-    ),
+      ),
     );
   }
 }

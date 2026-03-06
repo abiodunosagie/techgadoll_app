@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/theme/app_colors.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../../../shared/widgets/error_state.dart';
 import '../../../cart/presentation/providers/cart_provider.dart';
 import '../providers/product_providers.dart';
@@ -16,6 +16,8 @@ class ProductDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final productAsync = ref.watch(productDetailProvider(productId));
     final cart = ref.watch(cartProvider);
+    final colorScheme = Theme.of(context).colorScheme;
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return Scaffold(
       appBar: AppBar(
@@ -24,9 +26,7 @@ class ProductDetailScreen extends ConsumerWidget {
         ),
       ),
       body: productAsync.when(
-        loading: () => const Center(
-          child: CircularProgressIndicator(),
-        ),
+        loading: () => const _DetailShimmer(),
         error: (error, _) => ErrorState(
           message: error.toString(),
           onRetry: () => ref.invalidate(productDetailProvider(productId)),
@@ -44,29 +44,16 @@ class ProductDetailScreen extends ConsumerWidget {
                 ),
               ),
             ),
-            // Add to cart bottom bar
             Container(
-              padding: EdgeInsets.fromLTRB(
-                20,
-                12,
-                20,
-                MediaQuery.of(context).padding.bottom + 12,
-              ),
+              padding: EdgeInsets.fromLTRB(20, 12, 20, bottomPadding + 12),
               decoration: BoxDecoration(
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? AppColors.darkSurface
-                    : AppColors.surface,
+                color: colorScheme.surface,
                 border: Border(
-                  top: BorderSide(
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? AppColors.darkBorder
-                        : AppColors.border,
-                  ),
+                  top: BorderSide(color: colorScheme.outline),
                 ),
               ),
               child: Row(
                 children: [
-                  // Price
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -76,9 +63,7 @@ class ProductDetailScreen extends ConsumerWidget {
                           'Price',
                           style: TextStyle(
                             fontSize: 12,
-                            color: Theme.of(context).brightness == Brightness.dark
-                                ? AppColors.darkTextSecondary
-                                : AppColors.textSecondary,
+                            color: colorScheme.onSurfaceVariant,
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -94,7 +79,6 @@ class ProductDetailScreen extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  // Add to cart button
                   SizedBox(
                     height: 48,
                     child: ElevatedButton.icon(
@@ -134,6 +118,129 @@ class ProductDetailScreen extends ConsumerWidget {
                       ),
                     ),
                   ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DetailShimmer extends StatelessWidget {
+  const _DetailShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final baseColor = colorScheme.surfaceContainerHighest;
+    final highlightColor = colorScheme.surfaceContainerLow;
+
+    return Shimmer.fromColors(
+      baseColor: baseColor,
+      highlightColor: highlightColor,
+      child: SingleChildScrollView(
+        physics: const NeverScrollableScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AspectRatio(
+              aspectRatio: 1,
+              child: Container(color: baseColor),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        height: 14,
+                        width: 60,
+                        decoration: BoxDecoration(
+                          color: baseColor,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        height: 22,
+                        width: 80,
+                        decoration: BoxDecoration(
+                          color: baseColor,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    height: 24,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: baseColor,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    height: 24,
+                    width: 200,
+                    decoration: BoxDecoration(
+                      color: baseColor,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    height: 20,
+                    width: 120,
+                    decoration: BoxDecoration(
+                      color: baseColor,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    height: 28,
+                    width: 100,
+                    decoration: BoxDecoration(
+                      color: baseColor,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    height: 28,
+                    width: 100,
+                    decoration: BoxDecoration(
+                      color: baseColor,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Container(
+                    height: 18,
+                    width: 90,
+                    decoration: BoxDecoration(
+                      color: baseColor,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  ...List.generate(4, (i) => Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Container(
+                      height: 14,
+                      width: i == 3 ? 180 : double.infinity,
+                      decoration: BoxDecoration(
+                        color: baseColor,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  )),
                 ],
               ),
             ),

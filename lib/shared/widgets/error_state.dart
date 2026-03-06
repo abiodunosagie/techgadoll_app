@@ -14,33 +14,33 @@ class ErrorState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(
               Icons.error_outline_rounded,
-              size: 64,
+              size: 48,
               color: AppColors.error,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             Text(
               'Something went wrong',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             Text(
               message,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             Semantics(
               button: true,
               label: 'Retry loading products',

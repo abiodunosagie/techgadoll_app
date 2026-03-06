@@ -24,16 +24,18 @@ class _ProductImageGalleryState extends State<ProductImageGallery> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     if (widget.images.isEmpty) {
       return AspectRatio(
         aspectRatio: 1,
         child: Container(
-          color: AppColors.divider,
-          child: const Center(
+          color: colorScheme.surfaceContainerHighest,
+          child: Center(
             child: Icon(
               Icons.image_not_supported_outlined,
               size: 64,
-              color: AppColors.textTertiary,
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
         ),
@@ -56,12 +58,12 @@ class _ProductImageGalleryState extends State<ProductImageGallery> {
                   child: CircularProgressIndicator(strokeWidth: 2),
                 ),
                 errorWidget: (context, url, error) => Container(
-                  color: AppColors.divider,
-                  child: const Center(
+                  color: colorScheme.surfaceContainerHighest,
+                  child: Center(
                     child: Icon(
                       Icons.broken_image_outlined,
                       size: 48,
-                      color: AppColors.textTertiary,
+                      color: colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ),
@@ -92,7 +94,7 @@ class _ProductImageGalleryState extends State<ProductImageGallery> {
                   decoration: BoxDecoration(
                     color: isActive
                         ? AppColors.primary
-                        : AppColors.textTertiary.withValues(alpha: 0.3),
+                        : colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 );
