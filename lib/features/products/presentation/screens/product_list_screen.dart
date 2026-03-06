@@ -198,15 +198,14 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
           onRefresh: () => ref.read(productListProvider.notifier).refresh(),
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final crossAxisCount = widget.isTabletLeftPane
-                  ? 1
-                  : constraints.maxWidth > AppConstants.largeTabletBreakpoint
-                      ? 4
-                      : constraints.maxWidth > AppConstants.compactWidthBreakpoint
-                          ? 3
-                          : 2;
+              final crossAxisCount = constraints.maxWidth > AppConstants.largeTabletBreakpoint
+                  ? 4
+                  : constraints.maxWidth > AppConstants.compactWidthBreakpoint
+                      ? 3
+                      : 2;
 
               return MasonryGridView.count(
+                key: const PageStorageKey('product-grid'),
                 controller: _scrollController,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 crossAxisCount: crossAxisCount,

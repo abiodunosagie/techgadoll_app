@@ -144,3 +144,18 @@ Products are cached locally using **sqflite**. When the network is unavailable, 
 - Used **Riverpod** instead of Bloc/Cubit. The assessment allows any state management approach.
 - Added **splash screen**, **onboarding flow**, **auth screens**, **wishlist**, and **cart** beyond the spec to demonstrate a complete user experience.
 - Used **Iconsax** icon set for a consistent, modern visual style across the app.
+
+## Limitations
+
+Given more time, I would improve the following:
+
+- **Search + category combined query.** DummyJSON does not support combined search and category filtering in a single endpoint. Currently, search results are fetched from the API and then filtered by category client-side. With a real backend, this would be a single query with both parameters.
+- **Auth system.** Authentication is local-only (SharedPreferences) for demo purposes. A production app would integrate with Firebase Auth, Supabase, or a custom backend with JWT tokens and refresh flows.
+- **Cart/wishlist sync.** State is persisted locally via SharedPreferences. In production, this would sync with a backend so users can access their cart across devices.
+- **Accessibility audit.** Semantic labels are present on key interactive elements, but a full accessibility audit with TalkBack/VoiceOver testing would improve screen reader support.
+- **Pagination cursor.** The current offset-based pagination (limit/skip) can show duplicate items if the dataset changes between pages. Cursor-based pagination would be more robust.
+- **Test coverage.** Integration tests cover the primary user flows but do not yet test offline fallback behavior or edge cases like session expiry. Widget test coverage could be expanded to include ProductCard and the cart/wishlist screens.
+
+## AI Tools Usage
+
+Used GitHub Copilot for autocomplete suggestions and Claude for quick reference on API syntax. All architecture, design decisions, and implementation are my own.
