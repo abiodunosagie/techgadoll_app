@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:iconsax/iconsax.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../providers/auth_provider.dart';
@@ -233,7 +234,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
             suffixIcon: IconButton(
               onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
               icon: Icon(
-                _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                _obscurePassword ? Iconsax.eye_slash : Iconsax.eye,
                 color: colorScheme.onSurfaceVariant,
                 size: 22,
               ),
@@ -263,7 +264,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
             suffixIcon: IconButton(
               onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
               icon: Icon(
-                _obscureConfirmPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                _obscureConfirmPassword ? Iconsax.eye_slash : Iconsax.eye,
                 color: colorScheme.onSurfaceVariant,
                 size: 22,
               ),
@@ -365,7 +366,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(
-          isMet ? Icons.check_circle : Icons.circle_outlined,
+          isMet ? Iconsax.tick_circle5 : Iconsax.record,
           size: 14,
           color: color,
         ),
@@ -385,7 +386,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(
-          _passwordsMatch ? Icons.check_circle : Icons.cancel_outlined,
+          _passwordsMatch ? Iconsax.tick_circle5 : Iconsax.close_circle,
           size: 14,
           color: _passwordsMatch ? AppColors.primary : AppColors.error,
         ),

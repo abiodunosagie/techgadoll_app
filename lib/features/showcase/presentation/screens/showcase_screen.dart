@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../features/products/data/models/product_model.dart';
 import '../../../../shared/widgets/category_chip.dart';
@@ -33,7 +34,7 @@ class _ShowcaseScreenState extends State<ShowcaseScreen> {
               title: const Text('Component Showcase'),
               actions: [
                 IconButton(
-                  icon: Icon(_isDark ? Icons.light_mode : Icons.dark_mode),
+                  icon: Icon(_isDark ? Iconsax.sun_1 : Iconsax.moon),
                   onPressed: () => setState(() => _isDark = !_isDark),
                   tooltip: 'Toggle theme',
                 ),

@@ -59,6 +59,23 @@ class ProductModel extends Equatable {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'description': description,
+      'category': category,
+      'price': price,
+      'discountPercentage': discountPercentage,
+      'rating': rating,
+      'stock': stock,
+      'brand': brand,
+      'thumbnail': thumbnail,
+      'images': images,
+      'availabilityStatus': availabilityStatus,
+    };
+  }
+
   @override
   List<Object?> get props => [id];
 }

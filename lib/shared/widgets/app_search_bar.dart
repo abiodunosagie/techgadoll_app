@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 
 class AppSearchBar extends StatefulWidget {
   final String hintText;
@@ -38,13 +39,13 @@ class _AppSearchBarState extends State<AppSearchBar> {
       onChanged: widget.onChanged,
       decoration: InputDecoration(
         hintText: widget.hintText,
-        prefixIcon: const Icon(Icons.search),
+        prefixIcon: const Icon(Iconsax.search_normal),
         suffixIcon: ValueListenableBuilder<TextEditingValue>(
           valueListenable: _controller,
           builder: (context, value, child) {
             if (value.text.isEmpty) return const SizedBox.shrink();
             return IconButton(
-              icon: const Icon(Icons.clear),
+              icon: const Icon(Iconsax.close_circle),
               onPressed: () {
                 _controller.clear();
                 widget.onChanged('');

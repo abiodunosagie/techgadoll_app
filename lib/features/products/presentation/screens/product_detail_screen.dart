@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../../../shared/widgets/error_state.dart';
 import '../../../cart/presentation/providers/cart_provider.dart';
@@ -105,8 +106,8 @@ class ProductDetailScreen extends ConsumerWidget {
                           : null,
                       icon: Icon(
                         cart.containsProduct(product.id)
-                            ? Icons.shopping_cart
-                            : Icons.add_shopping_cart,
+                            ? Iconsax.shopping_cart5
+                            : Iconsax.shopping_cart,
                         size: 20,
                       ),
                       label: Text(

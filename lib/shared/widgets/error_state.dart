@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 import '../../core/theme/app_colors.dart';
 
 class ErrorState extends StatelessWidget {
@@ -20,7 +21,7 @@ class ErrorState extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(
-              Icons.error_outline_rounded,
+              Iconsax.warning_2,
               size: 48,
               color: AppColors.error,
             ),
@@ -46,7 +47,7 @@ class ErrorState extends StatelessWidget {
               label: 'Retry loading products',
               child: ElevatedButton.icon(
                 onPressed: onRetry,
-                icon: const Icon(Icons.refresh),
+                icon: const Icon(Iconsax.refresh),
                 label: const Text('Retry'),
               ),
             ),

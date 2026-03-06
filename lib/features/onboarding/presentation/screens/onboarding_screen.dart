@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -278,11 +279,11 @@ class _OnboardingPage extends StatelessWidget {
   IconData _getPageIcon() {
     switch (page.title) {
       case 'Discover Products\nYou Love':
-        return Icons.shopping_bag_outlined;
+        return Iconsax.bag_2;
       case 'Search & Filter\nWith Ease':
-        return Icons.search_rounded;
+        return Iconsax.search_normal;
       default:
-        return Icons.cloud_off_rounded;
+        return Iconsax.cloud_cross;
     }
   }
 }
@@ -400,7 +401,7 @@ class _ForwardButton extends StatelessWidget {
             shape: BoxShape.circle,
           ),
           child: Icon(
-            Icons.arrow_forward,
+            Iconsax.arrow_right_3,
             color: Colors.white,
             size: iconSize,
           ),
@@ -438,7 +439,7 @@ class _BackButton extends StatelessWidget {
               ),
             ),
             child: Icon(
-              Icons.arrow_back,
+              Iconsax.arrow_left_2,
               color: AppColors.primary,
               size: iconSize,
             ),
@@ -512,7 +513,7 @@ class _GetStartedButton extends StatelessWidget {
             ),
             SizedBox(width: size.width * 0.02),
             Icon(
-              Icons.arrow_forward,
+              Iconsax.arrow_right_3,
               color: Colors.white,
               size: iconSize,
             ),

@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 import '../../../../core/theme/app_colors.dart';
 
 class ProductImageGallery extends StatefulWidget {
@@ -33,7 +34,7 @@ class _ProductImageGalleryState extends State<ProductImageGallery> {
           color: colorScheme.surfaceContainerHighest,
           child: Center(
             child: Icon(
-              Icons.image_not_supported_outlined,
+              Iconsax.gallery_slash,
               size: 64,
               color: colorScheme.onSurfaceVariant,
             ),
@@ -61,7 +62,7 @@ class _ProductImageGalleryState extends State<ProductImageGallery> {
                   color: colorScheme.surfaceContainerHighest,
                   child: Center(
                     child: Icon(
-                      Icons.broken_image_outlined,
+                      Iconsax.gallery_slash,
                       size: 48,
                       color: colorScheme.onSurfaceVariant,
                     ),

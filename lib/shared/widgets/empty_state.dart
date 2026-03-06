@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:lottie/lottie.dart';
 
 class EmptyState extends StatelessWidget {
@@ -10,7 +11,7 @@ class EmptyState extends StatelessWidget {
     super.key,
     required this.title,
     this.subtitle = '',
-    this.icon = Icons.search_off_rounded,
+    this.icon = Iconsax.search_favorite,
   });
 
   @override

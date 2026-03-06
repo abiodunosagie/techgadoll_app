@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:iconsax/iconsax.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/empty_state.dart';
 import '../../../cart/presentation/providers/cart_provider.dart';
 import '../../../cart/presentation/screens/cart_screen.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
+import '../../../wishlist/presentation/providers/wishlist_provider.dart';
+import '../../../wishlist/presentation/screens/wishlist_screen.dart';
 import '../providers/product_providers.dart';
 import 'product_detail_screen.dart';
 import 'product_list_screen.dart';
@@ -23,6 +26,7 @@ class _MainShellState extends ConsumerState<MainShell> {
   @override
   Widget build(BuildContext context) {
     final cartState = ref.watch(cartProvider);
+    final wishlistState = ref.watch(wishlistProvider);
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
@@ -30,6 +34,7 @@ class _MainShellState extends ConsumerState<MainShell> {
         index: _selectedIndex,
         children: [
           const _ShopTab(),
+          const WishlistScreen(),
           const CartScreen(),
           const ProfileScreen(),
         ],
@@ -53,26 +58,34 @@ class _MainShellState extends ConsumerState<MainShell> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _NavItem(
-                  icon: Icons.storefront_outlined,
-                  activeIcon: Icons.storefront,
+                  icon: Iconsax.shop,
+                  activeIcon: Iconsax.shop5,
                   label: 'Shop',
                   isSelected: _selectedIndex == 0,
                   onTap: () => setState(() => _selectedIndex = 0),
                 ),
                 _NavItem(
-                  icon: Icons.shopping_cart_outlined,
-                  activeIcon: Icons.shopping_cart,
-                  label: 'Cart',
+                  icon: Iconsax.heart,
+                  activeIcon: Iconsax.heart5,
+                  label: 'Wishlist',
                   isSelected: _selectedIndex == 1,
-                  badgeCount: cartState.totalItems,
+                  badgeCount: wishlistState.count,
                   onTap: () => setState(() => _selectedIndex = 1),
                 ),
                 _NavItem(
-                  icon: Icons.person_outline,
-                  activeIcon: Icons.person,
-                  label: 'Profile',
+                  icon: Iconsax.shopping_cart,
+                  activeIcon: Iconsax.shopping_cart5,
+                  label: 'Cart',
                   isSelected: _selectedIndex == 2,
+                  badgeCount: cartState.totalItems,
                   onTap: () => setState(() => _selectedIndex = 2),
+                ),
+                _NavItem(
+                  icon: Iconsax.profile_circle,
+                  activeIcon: Iconsax.profile_circle5,
+                  label: 'Profile',
+                  isSelected: _selectedIndex == 3,
+                  onTap: () => setState(() => _selectedIndex = 3),
                 ),
               ],
             ),
@@ -187,7 +200,7 @@ class _ShopTab extends ConsumerWidget {
                   : const EmptyState(
                       title: 'Select a product',
                       subtitle: 'Choose a product from the list to view its details.',
-                      icon: Icons.touch_app_outlined,
+                      icon: Iconsax.finger_scan,
                     ),
             ),
           ],

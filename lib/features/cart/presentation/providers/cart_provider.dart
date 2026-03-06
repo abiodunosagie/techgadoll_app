@@ -1,5 +1,9 @@
+import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../products/data/models/product_model.dart';
+
+const _cartKey = 'cart_items';
 
 class CartItem {
   final ProductModel product;
@@ -15,6 +19,16 @@ class CartItem {
     final unitPrice = product.discountedPrice ?? product.price ?? 0;
     return unitPrice * quantity;
   }
+
+  Map<String, dynamic> toJson() => {
+        'product': product.toJson(),
+        'quantity': quantity,
+      };
+
+  factory CartItem.fromJson(Map<String, dynamic> json) => CartItem(
+        product: ProductModel.fromJson(json['product'] as Map<String, dynamic>),
+        quantity: json['quantity'] as int? ?? 1,
+      );
 }
 
 class CartState {
@@ -32,7 +46,31 @@ class CartState {
 }
 
 class CartNotifier extends StateNotifier<CartState> {
-  CartNotifier() : super(const CartState());
+  CartNotifier() : super(const CartState()) {
+    _load();
+  }
+
+  Future<void> _load() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_cartKey);
+    if (raw == null) return;
+
+    try {
+      final list = jsonDecode(raw) as List<dynamic>;
+      final items = list
+          .map((e) => CartItem.fromJson(e as Map<String, dynamic>))
+          .toList();
+      state = CartState(items: items);
+    } catch (_) {
+      // Corrupted data, start fresh
+    }
+  }
+
+  Future<void> _save() async {
+    final prefs = await SharedPreferences.getInstance();
+    final json = jsonEncode(state.items.map((e) => e.toJson()).toList());
+    await prefs.setString(_cartKey, json);
+  }
 
   void addToCart(ProductModel product) {
     final existingIndex = state.items.indexWhere((item) => item.product.id == product.id);
@@ -46,12 +84,14 @@ class CartNotifier extends StateNotifier<CartState> {
     } else {
       state = CartState(items: [...state.items, CartItem(product: product)]);
     }
+    _save();
   }
 
   void removeFromCart(int productId) {
     state = CartState(
       items: state.items.where((item) => item.product.id != productId).toList(),
     );
+    _save();
   }
 
   void updateQuantity(int productId, int quantity) {
@@ -66,10 +106,12 @@ class CartNotifier extends StateNotifier<CartState> {
       updated[index] = updated[index].copyWith(quantity: quantity);
       state = CartState(items: updated);
     }
+    _save();
   }
 
   void clearCart() {
     state = const CartState();
+    _save();
   }
 }
 

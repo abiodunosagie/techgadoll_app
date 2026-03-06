@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:iconsax/iconsax.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/empty_state.dart';
 import '../providers/cart_provider.dart';
@@ -27,7 +28,7 @@ class CartScreen extends ConsumerWidget {
           ? const EmptyState(
               title: 'Your cart is empty',
               subtitle: 'Browse products and add items to your cart.',
-              icon: Icons.shopping_cart_outlined,
+              icon: Iconsax.shopping_cart,
             )
           : _CartContent(cart: cart),
     );
@@ -97,12 +98,12 @@ class _CartItemCard extends ConsumerWidget {
                       fit: BoxFit.cover,
                       errorWidget: (_, _, _) => Container(
                         color: AppColors.divider,
-                        child: const Icon(Icons.image_not_supported_outlined, size: 24),
+                        child: const Icon(Iconsax.gallery_slash, size: 24),
                       ),
                     )
                   : Container(
                       color: AppColors.divider,
-                      child: const Icon(Icons.image_not_supported_outlined, size: 24),
+                      child: const Icon(Iconsax.gallery_slash, size: 24),
                     ),
             ),
           ),
@@ -133,7 +134,7 @@ class _CartItemCard extends ConsumerWidget {
                 Row(
                   children: [
                     _QuantityButton(
-                      icon: Icons.remove,
+                      icon: Iconsax.minus,
                       onTap: () {
                         ref.read(cartProvider.notifier).updateQuantity(
                               item.product.id,
@@ -152,7 +153,7 @@ class _CartItemCard extends ConsumerWidget {
                       ),
                     ),
                     _QuantityButton(
-                      icon: Icons.add,
+                      icon: Iconsax.add,
                       onTap: () {
                         ref.read(cartProvider.notifier).updateQuantity(
                               item.product.id,
@@ -166,7 +167,7 @@ class _CartItemCard extends ConsumerWidget {
                         ref.read(cartProvider.notifier).removeFromCart(item.product.id);
                       },
                       child: const Icon(
-                        Icons.delete_outline,
+                        Iconsax.trash,
                         size: 20,
                         color: AppColors.error,
                       ),

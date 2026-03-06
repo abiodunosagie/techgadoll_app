@@ -4,7 +4,7 @@ A Flutter application that displays a product catalog with a custom design syste
 
 ## Setup & Run
 
-**Requirements:** Flutter 3.38.4 (stable)
+**Requirements:** Flutter 3.38.4 (stable), Dart 3.10.3
 
 ```bash
 git clone https://github.com/abiodunosagie/techgadoll_app.git
@@ -15,9 +15,14 @@ flutter run
 
 No API keys or environment variables needed. The app uses the public [DummyJSON](https://dummyjson.com) products API.
 
+**Demo credentials:** `demo@techgadol.com` / `Demo1234`
+
 ```bash
-# Run tests
+# Run unit + widget tests
 flutter test
+
+# Run integration tests
+flutter test integration_test/
 
 # Static analysis
 flutter analyze
@@ -46,8 +51,9 @@ lib/
         providers/    Riverpod providers and notifiers
         screens/      Product list, detail, responsive shell
         widgets/      Image gallery, info section
-    cart/             Shopping cart with local state
-    profile/          User profile, sign out
+    cart/             Shopping cart with quantity management
+    wishlist/         Wishlist with heart toggle
+    profile/          User profile, stats, sign out
     onboarding/       First-launch onboarding flow
     splash/           Animated splash screen
     showcase/         Design system component showcase
@@ -56,6 +62,7 @@ test/
   unit/               Model parsing, validators, provider tests
   widget/             Design system component tests
   helpers/            Mock data and utilities
+integration_test/     End-to-end flow tests
 ```
 
 ### State Management
@@ -77,27 +84,41 @@ The data flow is straightforward: UI reads providers via `ref.watch()`, user int
 | Client-side category + search filtering | DummyJSON doesn't support combined search + category queries. Search results are fetched from the API, then filtered by category locally. |
 | Responsive shell with `LayoutBuilder` | Master-detail on tablets, push navigation on phones. Single widget handles the switch. |
 | Debounce in the notifier | The search field fires `onChanged` immediately. The notifier debounces before hitting the API, keeping the widget layer pure. |
+| MasonryGridView for product grid | Products have variable content height (brand, title length). Masonry layout avoids forced empty space below shorter cards. |
+| SharedPreferences for cart/wishlist | Cart and wishlist state persists across app restarts without requiring a backend. JSON serialization via `toJson()`/`fromJson()` on models. |
+| Iconsax icon set | Consistent, modern icon language across the entire app instead of default Material icons. |
 
 ## Design System
 
-Eight reusable components with minimal, composable APIs:
+Reusable components with minimal, composable APIs:
 
 | Component | Purpose |
 |---|---|
-| `ProductCard` | Grid card with image, brand, title, rating, price. Supports selection state for tablet. |
+| `ProductCard` | Grid card with image, brand, title, rating, price, wishlist toggle, and add-to-cart button. |
 | `PriceTag` | Formatted price with discount badge. Handles null price gracefully. |
 | `RatingBar` | 5-star display with filled, half, and empty states. |
 | `CategoryChip` | Filter chip with animated selection. |
 | `AppSearchBar` | Search field with clear button. Named to avoid SDK `SearchBar` conflict. |
 | `LoadingShimmer` | Shimmer placeholder grid matching card proportions. |
 | `ErrorState` | Error message with retry action. |
-| `EmptyState` | Lottie-animated empty state for no-results and empty cart. |
+| `EmptyState` | Lottie-animated empty state for no-results and empty screens. |
 
 ### Theming
 
 Two complete themes (light and dark) built on Material 3's `ColorScheme`. The light theme uses `ColorScheme.fromSeed()` with targeted overrides. The dark theme uses a manual `ColorScheme` constructor with neutral gray surfaces to prevent the warm green tint that `fromSeed` produces on dark backgrounds. Primary color: `#4EAC68`.
 
 All components read colors from `Theme.of(context).colorScheme`, so they adapt to both themes automatically without any conditional `isDark` checks scattered through the codebase.
+
+## Features
+
+- **Product browsing** with paginated list, search with debounce, and category filtering
+- **Product detail** with image gallery, specs, and stock status
+- **Shopping cart** with quantity controls and persistent state across restarts
+- **Wishlist** with heart toggle from any product card, dedicated wishlist screen
+- **Responsive layout** adapting from phone to tablet (master-detail)
+- **Offline support** via SQLite cache with stale-data indicator
+- **Light and dark themes** with full Material 3 color system
+- **Auth flow** with login, signup, session persistence, and onboarding
 
 ## Responsive Layout
 
@@ -116,13 +137,10 @@ Products are cached locally using **sqflite**. When the network is unavailable, 
 
 - **Unit tests:** Model JSON parsing, data validators, `ProductListNotifier` state transitions (loading, pagination, search, category filtering, error handling, cache fallback).
 - **Widget tests:** All design system components (EmptyState, ErrorState, PriceTag, RatingBar) tested for rendering, interaction, and edge cases.
+- **Integration tests:** End-to-end flows covering product list loading, search filtering, category filtering, product detail navigation, add-to-cart, wishlist toggle, and bottom navigation tab switching. Run with `flutter test integration_test/`.
 
 ## Spec Deviations
 
 - Used **Riverpod** instead of Bloc/Cubit. The assessment allows any state management approach.
-- Added **splash screen**, **onboarding flow**, and **auth screens** beyond the spec to demonstrate a complete user experience.
-
-## What I Would Improve
-
-- **Integration tests.** End-to-end flows with the `integration_test` package covering search, filter, navigation, and responsive layout transitions.
-- **Accessibility audit.** Semantic labels are on all interactive elements, but a full VoiceOver/TalkBack pass across devices would be valuable.
+- Added **splash screen**, **onboarding flow**, **auth screens**, **wishlist**, and **cart** beyond the spec to demonstrate a complete user experience.
+- Used **Iconsax** icon set for a consistent, modern visual style across the app.

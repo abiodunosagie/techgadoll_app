@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/theme/app_colors.dart';
 
@@ -148,7 +149,7 @@ class _SplashScreenState extends State<SplashScreen>
           fit: BoxFit.contain,
           errorBuilder: (context, error, stackTrace) {
             return const Icon(
-              Icons.shopping_bag_outlined,
+              Iconsax.bag_2,
               size: 64,
               color: AppColors.primary,
             );

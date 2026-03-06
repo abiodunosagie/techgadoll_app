@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:iconsax/iconsax.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../providers/auth_provider.dart';
@@ -149,7 +150,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             textInputAction: TextInputAction.next,
             decoration: _inputDecoration(
               hint: 'Enter your email',
-              prefixIcon: Icons.mail_outline_rounded,
+              prefixIcon: Iconsax.sms,
               colorScheme: colorScheme,
             ),
             validator: (value) {
@@ -178,12 +179,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             textInputAction: TextInputAction.done,
             decoration: _inputDecoration(
               hint: 'Enter your password',
-              prefixIcon: Icons.lock_outline_rounded,
+              prefixIcon: Iconsax.lock,
               colorScheme: colorScheme,
               suffixIcon: IconButton(
                 onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                 icon: Icon(
-                  _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                  _obscurePassword ? Iconsax.eye_slash : Iconsax.eye,
                   color: colorScheme.onSurfaceVariant,
                   size: 22,
                 ),

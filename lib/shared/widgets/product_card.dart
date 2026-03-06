@@ -1,11 +1,15 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:iconsax/iconsax.dart';
 import '../../core/theme/app_colors.dart';
+import '../../features/cart/presentation/providers/cart_provider.dart';
 import '../../features/products/data/models/product_model.dart';
+import '../../features/wishlist/presentation/providers/wishlist_provider.dart';
 import 'price_tag.dart';
 import 'rating_bar.dart';
 
-class ProductCard extends StatelessWidget {
+class ProductCard extends ConsumerWidget {
   final ProductModel product;
   final VoidCallback onTap;
   final bool isSelected;
@@ -18,8 +22,10 @@ class ProductCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isInWishlist = ref.watch(wishlistProvider).contains(product.id);
+    final isInCart = ref.watch(cartProvider).containsProduct(product.id);
 
     final priceLabel = product.price != null
         ? '\$${product.price!.toStringAsFixed(2)}'
@@ -58,55 +64,98 @@ class ProductCard extends StatelessWidget {
                 ),
               ],
             ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AspectRatio(
-                aspectRatio: 1.3,
-                child: Hero(
-                  tag: 'product-image-${product.id}',
-                  child: _buildImage(colorScheme),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Stack(
                   children: [
-                    if (product.brand != null)
-                      Text(
-                        product.brand!,
-                        style: const TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.primary,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                    AspectRatio(
+                      aspectRatio: 1.3,
+                      child: Hero(
+                        tag: 'product-image-${product.id}',
+                        child: _buildImage(colorScheme),
                       ),
-                    const SizedBox(height: 2),
-                    Text(
-                      product.title,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
-                    RatingBar(rating: product.rating, size: 12),
-                    const SizedBox(height: 4),
-                    PriceTag(
-                      price: product.price,
-                      discountPercentage: product.discountPercentage,
-                      fontSize: 13,
+                    Positioned(
+                      top: 6,
+                      right: 6,
+                      child: _WishlistButton(
+                        isInWishlist: isInWishlist,
+                        onTap: () {
+                          ref.read(wishlistProvider.notifier).toggle(product);
+                        },
+                      ),
                     ),
                   ],
                 ),
-              ),
-            ],
-          ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (product.brand != null)
+                        Text(
+                          product.brand!,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.primary,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      const SizedBox(height: 2),
+                      Text(
+                        product.title,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      RatingBar(rating: product.rating, size: 12),
+                      const SizedBox(height: 4),
+                      PriceTag(
+                        price: product.price,
+                        discountPercentage: product.discountPercentage,
+                        fontSize: 13,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 8),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 32,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        ref.read(cartProvider.notifier).addToCart(product);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: isInCart ? AppColors.primary : colorScheme.onSurface,
+                        foregroundColor: isInCart ? Colors.white : colorScheme.surface,
+                        elevation: 0,
+                        padding: EdgeInsets.zero,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        isInCart ? 'Added' : 'Add to Cart',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -121,7 +170,7 @@ class ProductCard extends StatelessWidget {
       return Container(
         color: placeholderColor,
         child: Center(
-          child: Icon(Icons.image_not_supported_outlined, size: 40, color: iconColor),
+          child: Icon(Iconsax.gallery_slash, size: 40, color: iconColor),
         ),
       );
     }
@@ -136,7 +185,47 @@ class ProductCard extends StatelessWidget {
       errorWidget: (context, url, error) => Container(
         color: placeholderColor,
         child: Center(
-          child: Icon(Icons.broken_image_outlined, size: 40, color: iconColor),
+          child: Icon(Iconsax.gallery_slash, size: 40, color: iconColor),
+        ),
+      ),
+    );
+  }
+}
+
+class _WishlistButton extends StatelessWidget {
+  final bool isInWishlist;
+  final VoidCallback onTap;
+
+  const _WishlistButton({required this.isInWishlist, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 30,
+        height: 30,
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.9),
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 4,
+              offset: const Offset(0, 1),
+            ),
+          ],
+        ),
+        child: Center(
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 200),
+            child: Icon(
+              isInWishlist ? Iconsax.heart5 : Iconsax.heart,
+              key: ValueKey(isInWishlist),
+              size: 16,
+              color: isInWishlist ? AppColors.error : Colors.grey,
+            ),
+          ),
         ),
       ),
     );

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
+import 'package:iconsax/iconsax.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/app_search_bar.dart';
@@ -149,7 +151,7 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.cloud_off, size: 14, color: AppColors.warning.withValues(alpha: 0.8)),
+                  Icon(Iconsax.cloud_cross, size: 14, color: AppColors.warning.withValues(alpha: 0.8)),
                   const SizedBox(width: 6),
                   Text(
                     'Showing cached data',
@@ -203,17 +205,13 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
                       : constraints.maxWidth > AppConstants.compactWidthBreakpoint
                           ? 3
                           : 2;
-              final childAspectRatio = widget.isTabletLeftPane ? 2.5 : 0.68;
 
-              return GridView.builder(
+              return MasonryGridView.count(
                 controller: _scrollController,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: crossAxisCount,
-                  childAspectRatio: childAspectRatio,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                ),
+                crossAxisCount: crossAxisCount,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
                 itemCount: listState.products.length + (listState.isLoadingMore ? 1 : 0),
                 itemBuilder: (context, index) {
                   if (index == listState.products.length) {
