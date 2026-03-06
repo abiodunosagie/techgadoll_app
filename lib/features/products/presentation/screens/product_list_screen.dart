@@ -86,13 +86,6 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Product Catalog'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.palette_outlined),
-            tooltip: 'Component Showcase',
-            onPressed: () => context.push('/showcase'),
-          ),
-        ],
       ),
       body: Column(
         children: [
@@ -215,7 +208,7 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: widget.isTabletLeftPane ? 1 : 2,
-              childAspectRatio: widget.isTabletLeftPane ? 2.5 : 0.62,
+              childAspectRatio: widget.isTabletLeftPane ? 2.5 : 0.58,
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
             ),

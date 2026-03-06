@@ -29,71 +29,75 @@ class ProductCard extends StatelessWidget {
       label: '${product.title}, ${product.brand ?? ''}, rated ${product.rating.toStringAsFixed(1)} out of 5, $priceLabel',
       button: true,
       child: GestureDetector(
-      onTap: onTap,
-      child: Card(
-        clipBehavior: Clip.antiAlias,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: BorderSide(
-            color: isSelected
-                ? AppColors.primary
-                : isDark
-                    ? AppColors.darkBorder
-                    : AppColors.border,
-            width: isSelected ? 2 : 1,
+        onTap: onTap,
+        child: Card(
+          clipBehavior: Clip.antiAlias,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(
+              color: isSelected
+                  ? AppColors.primary
+                  : isDark
+                      ? AppColors.darkBorder
+                      : AppColors.border,
+              width: isSelected ? 2 : 1,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AspectRatio(
+                aspectRatio: 1.3,
+                child: Hero(
+                  tag: 'product-image-${product.id}',
+                  child: _buildImage(),
+                ),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (product.brand != null)
+                        Text(
+                          product.brand!,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.primary,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      const SizedBox(height: 2),
+                      Flexible(
+                        child: Text(
+                          product.title,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      RatingBar(rating: product.rating, size: 12),
+                      const SizedBox(height: 4),
+                      PriceTag(
+                        price: product.price,
+                        discountPercentage: product.discountPercentage,
+                        fontSize: 13,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            AspectRatio(
-              aspectRatio: 1.2,
-              child: Hero(
-                tag: 'product-image-${product.id}',
-                child: _buildImage(),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (product.brand != null)
-                    Text(
-                      product.brand!,
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.primary,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  const SizedBox(height: 2),
-                  Text(
-                    product.title,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 6),
-                  RatingBar(rating: product.rating, size: 14),
-                  const SizedBox(height: 6),
-                  PriceTag(
-                    price: product.price,
-                    discountPercentage: product.discountPercentage,
-                    fontSize: 14,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
       ),
-    ),
     );
   }
 

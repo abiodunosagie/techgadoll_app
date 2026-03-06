@@ -109,7 +109,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Future<void> _completeOnboarding() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('has_seen_onboarding', true);
-    if (mounted) context.go('/');
+    if (mounted) context.go('/login');
   }
 
   void _skipOnboarding() {
