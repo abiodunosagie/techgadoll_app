@@ -55,6 +55,7 @@ class ProductListState {
   final ProductListStatus status;
   final bool hasReachedMax;
   final bool isLoadingMore;
+  final bool isFromCache;
   final String errorMessage;
 
   const ProductListState({
@@ -62,6 +63,7 @@ class ProductListState {
     this.status = ProductListStatus.initial,
     this.hasReachedMax = false,
     this.isLoadingMore = false,
+    this.isFromCache = false,
     this.errorMessage = '',
   });
 
@@ -70,6 +72,7 @@ class ProductListState {
     ProductListStatus? status,
     bool? hasReachedMax,
     bool? isLoadingMore,
+    bool? isFromCache,
     String? errorMessage,
   }) {
     return ProductListState(
@@ -77,6 +80,7 @@ class ProductListState {
       status: status ?? this.status,
       hasReachedMax: hasReachedMax ?? this.hasReachedMax,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      isFromCache: isFromCache ?? this.isFromCache,
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }
@@ -120,14 +124,16 @@ class ProductListNotifier extends StateNotifier<ProductListState> {
       status: ProductListStatus.loading,
       hasReachedMax: false,
       products: [],
+      isFromCache: false,
     );
 
     try {
-      final response = await _fetchPage(0);
+      final result = await _fetchPage(0);
       state = state.copyWith(
         status: ProductListStatus.loaded,
-        products: response.products,
-        hasReachedMax: !response.hasMore,
+        products: result.response.products,
+        hasReachedMax: !result.response.hasMore,
+        isFromCache: result.fromCache,
       );
     } catch (e) {
       state = state.copyWith(
@@ -143,10 +149,10 @@ class ProductListNotifier extends StateNotifier<ProductListState> {
     state = state.copyWith(isLoadingMore: true);
 
     try {
-      final response = await _fetchPage(state.products.length);
+      final result = await _fetchPage(state.products.length);
       state = state.copyWith(
-        products: [...state.products, ...response.products],
-        hasReachedMax: !response.hasMore,
+        products: [...state.products, ...result.response.products],
+        hasReachedMax: !result.response.hasMore,
         isLoadingMore: false,
       );
     } catch (e) {
@@ -154,44 +160,48 @@ class ProductListNotifier extends StateNotifier<ProductListState> {
     }
   }
 
-  Future<ProductsResponse> _fetchPage(int skip) async {
+  Future<_FetchResult> _fetchPage(int skip) async {
     final query = _ref.read(searchQueryProvider);
     final category = _ref.read(selectedCategoryProvider);
 
     if (query.isNotEmpty && category != null) {
-      // DummyJSON doesn't support search + category together.
-      // Fetch search results then client-side filter by category.
-      final response = await _repository.searchProducts(
+      final result = await _repository.searchProducts(
         query,
         limit: 100,
         skip: 0,
       );
-      final filtered = response.products
+      final filtered = result.data.products
           .where((p) => p.category == category)
           .toList();
-      return ProductsResponse(
-        products: filtered,
-        total: filtered.length,
-        skip: 0,
-        limit: filtered.length,
+      return _FetchResult(
+        response: ProductsResponse(
+          products: filtered,
+          total: filtered.length,
+          skip: 0,
+          limit: filtered.length,
+        ),
+        fromCache: result.fromCache,
       );
     } else if (query.isNotEmpty) {
-      return _repository.searchProducts(
+      final result = await _repository.searchProducts(
         query,
         limit: AppConstants.pageSize,
         skip: skip,
       );
+      return _FetchResult(response: result.data, fromCache: result.fromCache);
     } else if (category != null) {
-      return _repository.getProductsByCategory(
+      final result = await _repository.getProductsByCategory(
         category,
         limit: AppConstants.pageSize,
         skip: skip,
       );
+      return _FetchResult(response: result.data, fromCache: result.fromCache);
     } else {
-      return _repository.getProducts(
+      final result = await _repository.getProducts(
         limit: AppConstants.pageSize,
         skip: skip,
       );
+      return _FetchResult(response: result.data, fromCache: result.fromCache);
     }
   }
 
@@ -200,4 +210,11 @@ class ProductListNotifier extends StateNotifier<ProductListState> {
     _debounceTimer?.cancel();
     super.dispose();
   }
+}
+
+class _FetchResult {
+  final ProductsResponse response;
+  final bool fromCache;
+
+  const _FetchResult({required this.response, required this.fromCache});
 }

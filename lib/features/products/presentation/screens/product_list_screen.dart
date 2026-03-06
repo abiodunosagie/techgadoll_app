@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/app_search_bar.dart';
 import '../../../../shared/widgets/category_chip.dart';
 import '../../../../shared/widgets/empty_state.dart';
@@ -126,6 +127,25 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
               error: (_, _) => const SizedBox.shrink(),
             ),
           ),
+
+          // Cache indicator
+          if (productListState.isFromCache)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              color: AppColors.warning.withValues(alpha: 0.15),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.cloud_off, size: 14, color: AppColors.warning.withValues(alpha: 0.8)),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Showing cached data',
+                    style: TextStyle(fontSize: 12, color: AppColors.warning.withValues(alpha: 0.8)),
+                  ),
+                ],
+              ),
+            ),
 
           const SizedBox(height: 8),
 
