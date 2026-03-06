@@ -39,9 +39,10 @@ class PriceTag extends StatelessWidget {
 
     return Semantics(
       label: semanticLabel,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
+      child: Wrap(
+        spacing: 6,
+        runSpacing: 4,
+        crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           Text(
             '\$${discountedPrice.toStringAsFixed(2)}',
@@ -52,7 +53,6 @@ class PriceTag extends StatelessWidget {
             ),
           ),
           if (hasDiscount) ...[
-            const SizedBox(width: 6),
             Text(
               '\$${price!.toStringAsFixed(2)}',
               style: TextStyle(
@@ -62,7 +62,6 @@ class PriceTag extends StatelessWidget {
                 decorationColor: colorScheme.onSurfaceVariant,
               ),
             ),
-            const SizedBox(width: 6),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
